@@ -20,76 +20,12 @@ export const checkJwt = jwt({
   algorithms: ["RS256"],
 });
 
-export async function isFormAAdmin(req: Request, res: Response, next: NextFunction) {
-  const { department_code } = req.body;
-  const { roles, department_admin_for } = req.user;
+export async function isAdmin(req: Request, res: Response, next: NextFunction) {
+  const { roles } = req.user;
 
   // these folks can do it all!
   if (roles.includes("System Admin")) return next();
-  if (roles.includes("Department of Finance")) return next();
-  if (roles.includes("Form A Administrator")) {
-    if (!department_code) return next();
-    if (department_code && department_admin_for.includes(department_code)) return next();
-  }
-  return res.status(403).send(`You do not have Form A Administrator on ${department_code}`);
-}
-
-export async function isFormBAdmin(req: Request, res: Response, next: NextFunction) {
-  const { department_code } = req.body;
-  const { roles, department_admin_for, email } = req.user;
-
-  // these folks can do it all!
-  if (roles.includes("System Admin")) return next();
-  if (roles.includes("Department of Finance")) return next();
-  if (roles.includes("Form B Administrator")) {
-    if (!department_code) return next();
-    if (department_code && department_admin_for.includes(department_code)) return next();
-  }
-
-  //special case for regular employees to approve an acting appointment
-  if (req.method == "PUT") {
-    if (
-      req.body &&
-      req.body.authority_type &&
-      req.body.authority_type == "acting" &&
-      req.body.activation &&
-      req.body.activation.length > 0 &&
-      req.user.email
-    ) {
-      let approveEmails = req.body.activation.map((a: any) => a.approve_user_email.toLowerCase());
-
-      if (approveEmails.includes(req.user.email.toLowerCase())) return next();
-    }
-  }
-
-  return res.status(403).send(`You do not have Form B Administrator on ${department_code}`);
-}
-
-export async function isFormBOrActingAdmin(req: Request, res: Response, next: NextFunction) {
-  const { department_code } = req.body;
-  const { roles, department_admin_for } = req.user;
-
-  // these folks can do it all!
-  if (roles.includes("System Admin")) return next();
-  if (roles.includes("Form B Administrator") && department_admin_for.includes(department_code)) return next();
-  if (roles.includes("Acting Appointment Administrator")) {
-    if (!department_code) return next();
-    if (department_code && department_admin_for.includes(department_code)) return next();
-  }
-
-  return res.status(403).send(`You do not have Form B Administrator on ${department_code}`);
-}
-
-export async function isActingAdmin(req: Request, res: Response, next: NextFunction) {
-  const { department_code } = req.body;
-  const { roles, department_admin_for } = req.user;
-
-  // these folks can do it all!
-  if (roles.includes("System Admin")) return next();
-  if (roles.includes("Acting Appointment Administrator") && department_admin_for.includes(department_code))
-    return next();
-
-  return res.status(403).send(`You do not have Acting Appointment Administrator on ${department_code}`);
+  return res.status(403).send(`You are not a System Admin`);
 }
 
 export async function loadUser(req: Request, res: Response, next: NextFunction) {
