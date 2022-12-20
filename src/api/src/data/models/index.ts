@@ -4,5 +4,5 @@ export class MongoEntity {
   _id?: ObjectId;
 }
 
-export * from "./centre";
+export * from "./visitor-centre";
 export * from "./user";

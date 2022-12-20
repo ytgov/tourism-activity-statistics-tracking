@@ -3,17 +3,20 @@ version: "3"
 services:
   web:
     build: .
+    depends_on:
+      - sqldb
     restart: unless-stopped
     ports:
       - 3000:3000
 
-  mongodb:
-    image: mongo:5.0.6
+  sqldb:
+    image: mcr.microsoft.com/mssql/server:2019-latest
     restart: unless-stopped
+    env_file:
+      - db/sqlserver.env
+      - db/sapassword.env
     volumes:
-      - mongo-data:/data/db
-    ports:
-      - 27017:27017
+      - sqlsystem:/var/opt/mssql/
 
 volumes:
-  mongo-data:
+  sqlsystem:

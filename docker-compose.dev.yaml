@@ -1,17 +1,15 @@
 version: "3"
 
 services:
-  mongodb:
-    image: mongo:5.0.6
-    restart: unless-stopped
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME}
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
-      - TZ=America/Whitehorse
+  sqldb: 
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    ports: 
+      - "1433:1433"
+    env_file: 
+      - db/sqlserver.env
+      - db/sapassword.env
     volumes:
-      - mongo-data:/data/db
-    ports:
-      - 27017:27017
+      - sqlsystem:/var/opt/mssql/
 
 volumes:
-  mongo-data:
+  sqlsystem:
