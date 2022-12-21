@@ -23,16 +23,16 @@ export class PermissionService {
     return [];
   }
 
-  async getPermissions(email: string): Promise<Permissions> {
-    this.getRoles(email).then((roles) => {
-      console.log(roles);
-    });
+  // async getPermissions(email: string): Promise<Permissions> {
+  //   this.getRoles(email).then((roles) => {
+  //     console.log(roles);
+  //   });
 
-    this.db
-      .select("write", "read", "update", "delete")
-      .from("permissions")
-      .where({ email });
-  }
+  //   this.db
+  //     .select("write", "read", "update", "delete")
+  //     .from("permissions")
+  //     .where({ email });
+  // }
 
   async add(
     email: string,
