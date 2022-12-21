@@ -1,40 +1,55 @@
 import _ from "lodash";
-import { Collection, ObjectId } from "mongodb";
 import { User } from "../data/models";
+import { DB_CONFIG } from "../config";
+import knex, { Knex } from "knex";
 
 export class UserService {
-  private db: Collection<User>;
+  private db: Knex;
 
-  constructor(db: Collection<User>) {
+  constructor(db: Knex) {
     this.db = db;
   }
 
-  async create(user: any): Promise<any> {
-    let existing = await this.db.find({ email: user.email }).toArray();
+  async create(user: User): Promise<any> {
+    let existing = await this.db("user")
+      .where(user.email)
+      .count("email as cnt");
 
-    if (existing.length > 0) return undefined;
+    if (existing[0].cnt > 0) return undefined;
 
-    user.create_date = new Date();
-    return await this.db.insertOne(user);
+    return await this.db("user").insert(user);
   }
 
-  async update(_id: ObjectId, item: any) {
-    return this.db.findOneAndReplace({ _id }, item);
+  async update(email: string, item: any) {
+    return this.db("user").where({ email }).update(item);
   }
 
-  async getAll(query = {}): Promise<User[]> {
-    return this.db.find<User>(query).toArray();
+  async getAll() {
+    return this.db("user");
   }
 
-  async getByEmail(email: string): Promise<User | null> {
-    return this.db.findOne<User>({ email });
+  async getByEmail(email: string): Promise<any | undefined> {
+    return this.db("user").where({ email }).first();
   }
 
-  async getBySub(sub: string): Promise<User | null> {
-    return this.db.findOne({ sub });
+  async getById(id: string): Promise<any | undefined> {
+    return this.db("user").where({ id }).first();
   }
 
   async delete(id: string) {
-    return this.db.deleteOne({ _id: new ObjectId(id) });
+    return this.db("user").where({ id }).del();
   }
+
+  // async getAll(query = {}): Promise<User[]> {
+  //   return this.db.find<User>(query).toArray();
+  // }
+
+  //TODO
+  async getBySub(sub: string): Promise<User | null> {
+    return this.db("user").where({ sub }).first();
+  }
+
+  // async delete(id: string) {
+  //   return this.db.deleteOne({ _id: new ObjectId(id) });
+  // }
 }

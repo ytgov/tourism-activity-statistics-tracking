@@ -50,7 +50,9 @@ userRouter.put(
       existing.roles = roles;
       existing.department_admin_for = department_admin_for;
       await db.update(existing._id || "", existing);
-      return res.json({ messages: [{ variant: "success", text: "User saved" }] });
+      return res.json({
+        messages: [{ variant: "success", text: "User saved" }],
+      });
     }
 
     res.status(404).send();
@@ -68,32 +70,43 @@ userRouter.post("/", async (req: Request, res: Response) => {
   return res.json(user);
 });
 
-userRouter.delete("/:id", [param("id").notEmpty()], ReturnValidationErrors, async (req: Request, res: Response) => {
-  const db = req.store.Users as UserService;
-  let { id } = req.params;
+userRouter.delete(
+  "/:id",
+  [param("id").notEmpty()],
+  ReturnValidationErrors,
+  async (req: Request, res: Response) => {
+    const db = req.store.Users as UserService;
+    let { id } = req.params;
 
-  await db.delete(id);
+    await db.delete(id);
 
-  let list = await db.getAll();
-  return res.json({ data: list, messages: [{ variant: "success", text: "User removed" }] });
-});
+    let list = await db.getAll();
+    return res.json({
+      data: list,
+      messages: [{ variant: "success", text: "User removed" }],
+    });
+  }
+);
 
 // this will be removed when the application is deployed
-userRouter.get("/make-admin/:email/:key", async (req: Request, res: Response) => {
-  const db = req.store.Users as UserService;
-  let user = await db.getByEmail(req.params.email);
+userRouter.get(
+  "/make-admin/:email/:key",
+  async (req: Request, res: Response) => {
+    const db = req.store.Users as UserService;
+    let user = await db.getByEmail(req.params.email);
 
-  let { email, key } = req.params;
+    let { email, key } = req.params;
 
-  if (key != process.env.SECRET) {
-    return res.status(403).send("Your key is invalid");
+    if (key != process.env.SECRET) {
+      return res.status(403).send("Your key is invalid");
+    }
+
+    if (user) {
+      console.log(`KEY MATCHES, making ${email} an admin`);
+      user.roles = ["Admin"];
+      //await db.update(email, user);
+    }
+
+    res.send("Done");
   }
-
-  if (user) {
-    console.log(`KEY MATCHES, making ${email} an admin`);
-    user.roles = ["Admin"];
-    //await db.update(email, user);
-  }
-
-  res.send("Done");
-});
+);

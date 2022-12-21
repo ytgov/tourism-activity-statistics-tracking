@@ -6,6 +6,7 @@ import fileUpload from "express-fileupload";
 import { API_PORT, FRONTEND_URL, APPLICATION_NAME } from "./config";
 import { doHealthCheck } from "./utils/health-check";
 import { userRouter, configRouter } from "./routes";
+import { CreateMigrationRoutes } from "./data";
 
 //import { configureLocalAuthentication } from "./routes/auth-local";
 import { RequiresData } from "./middleware";
@@ -40,6 +41,8 @@ app.use(
     credentials: true,
   })
 );
+
+CreateMigrationRoutes(app);
 
 app.get("/api/healthCheck", RequiresData, (req: Request, res: Response) => {
   // app.get("/api/healthCheck",  (req: Request, res: Response) => {
