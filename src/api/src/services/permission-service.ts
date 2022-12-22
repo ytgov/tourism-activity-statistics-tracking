@@ -1,4 +1,4 @@
-import { Permissions } from "../data/models";
+import { Permissions, PermissionsInternal } from "../data/models";
 import { Knex } from "knex";
 
 export class PermissionService {
@@ -23,52 +23,165 @@ export class PermissionService {
     return [];
   }
 
-  // async getPermissions(email: string): Promise<Permissions> {
-  //   this.getRoles(email).then((roles) => {
-  //     console.log(roles);
-  //   });
-
-  //   this.db
-  //     .select("write", "read", "update", "delete")
-  //     .from("permissions")
-  //     .where({ email });
-  // }
-
   async add(
     email: string,
     operation: string[] | string,
     scope: string[] | string
   ): Promise<any> {
+    const insertObject = {} as PermissionsInternal;
+    insertObject.email = email;
+
     let permissions = await this.db("direct_permissions")
-      .select(operation)
-      .where(email)
+      .select("create", "read", "update", "delete")
+      .where("email", "=", email)
       .first();
-    permissions = [...scope, ...permissions];
-    return this.db
-      .insert({ operation: permissions })
-      .from("permissions")
-      .where({ email })
+
+    operation = this.inputClean(operation);
+    scope = this.inputClean(scope);
+
+    for (let op of operation) {
+      if (
+        op === "create" ||
+        op === "read" ||
+        op === "update" ||
+        op === "delete"
+      ) {
+        permissions[op] && permissions[op].length > 0 ? permissions[op] : "[]";
+        insertObject[op] = JSON.stringify(
+          this.clearDuplicates([...scope, ...JSON.parse(permissions[op])])
+        );
+      }
+    }
+    return this.db("direct_permissions")
+      .insert(insertObject)
       .onConflict("email")
       .merge();
   }
 
   async remove(
+    email: string,
     operation: string[] | string,
     scope: string[] | string
-  ): Promise<any> {}
+  ): Promise<any> {
+    const insertObject = {} as PermissionsInternal;
+    insertObject.email = email;
 
-  //single value only for now, no arrays
+    let permissions = await this.db("direct_permissions")
+      .select("create", "read", "update", "delete")
+      .where("email", "=", email)
+      .first();
+
+    operation = this.inputClean(operation);
+    scope = this.inputClean(scope);
+
+    for (let op of operation) {
+      if (
+        op === "create" ||
+        op === "read" ||
+        op === "update" ||
+        op === "delete"
+      ) {
+        permissions[op] =
+          permissions[op] && permissions[op].length > 0
+            ? permissions[op]
+            : "[]";
+        insertObject[op] = JSON.stringify(
+          this.clearDuplicates(
+            [...JSON.parse(permissions[op])].filter((x) => !scope.includes(x))
+          )
+        );
+      }
+    }
+    return this.db("direct_permissions")
+      .insert(insertObject)
+      .onConflict("email")
+      .merge();
+  }
+
+  //Check if user has permission to perform all operations on scopes. Return true if all operations are allowed on all scopes.
   async check(
     email: string,
     operation: string[] | string,
     scope: string[] | string
   ): Promise<boolean> {
+    operation = this.inputClean(operation);
+    scope = this.inputClean(scope);
+
+    // let permissions = await this.db("direct_permissions")
+    //   .select("create", "read", "update", "delete")
+    //   .where("email", "=", email)
+    //   .first();
+
+    let permissions = await this.aggregatePermissions(email);
+
+    for (let op of operation) {
+      if (
+        op === "create" ||
+        op === "read" ||
+        op === "update" ||
+        op === "delete"
+      ) {
+        if (permissions[op]) {
+          if (!scope.every((x) => JSON.parse(permissions[op]).includes(x))) {
+            return false;
+          }
+        } else {
+          return false;
+        }
+      } else {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  inputClean(value: string[] | string): string[] {
+    value = typeof value === "string" ? [value] : value;
+    return value;
+  }
+
+  clearDuplicates(array: string[]): string[] {
+    return [...new Set(array)];
+  }
+
+  async aggregatePermissions(email: string) {
     let permissions = await this.db("direct_permissions")
-      .select(operation)
-      .where(email)
+      .select("create", "read", "update", "delete")
+      .where("email", "=", email)
       .first();
 
-    return permissions.includes(scope);
+    let roles = await this.db("user")
+      .select("roles")
+      .where("email", "=", email)
+      .first();
+    console.log(roles);
+
+    let rolePermissions = await this.db("roles")
+      .select("create", "read", "update", "delete")
+      .whereIn("role", ["admin", "whitehorse"]);
+    console.log(rolePermissions);
+
+    let aggregatePermissions = permissions;
+
+    for (let rolePermission of rolePermissions) {
+      for (let op in rolePermission) {
+        permissions[op] = JSON.stringify(
+          this.clearDuplicates([
+            ...JSON.parse(
+              permissions[op] && permissions[op].length > 0
+                ? permissions[op]
+                : "[]"
+            ),
+            ...JSON.parse(
+              rolePermission[op] && rolePermission[op].length > 0
+                ? rolePermission[op]
+                : "[]"
+            ),
+          ])
+        );
+      }
+    }
+    return aggregatePermissions;
   }
 
   //   async addOperationAlias(

@@ -4,7 +4,7 @@ exports.up = function (knex: knex.Knex, Promise: any) {
   console.log("Created direct_permissions table");
   return knex.schema.createTable("direct_permissions", function (t) {
     t.increments("id").notNullable().primary();
-    t.string("email").notNullable();
+    t.string("email").notNullable().unique();
     t.string("create");
     t.string("read");
     t.string("update");
