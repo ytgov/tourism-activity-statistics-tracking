@@ -13,9 +13,24 @@ export class PermissionService {
     return [];
   }
 
-  async getPermissionMap(email: string): Promise<[]> {
-    this.db.select("roles").from("users").where({ email }).first();
-    return [];
+  async getPermissionMap(email: string): Promise<any> {
+    //return permissions, showing which came from role assignments
+
+    let permissions = await this.db("direct_permissions")
+      .select("create", "read", "update", "delete")
+      .where("email", "=", email)
+      .first();
+
+    let roles = await this.db("user")
+      .select("roles")
+      .where("email", "=", email)
+      .first();
+
+    let rolePermissions = await this.db("roles")
+      .select("role", "create", "read", "update", "delete")
+      .whereIn("role", roles.roles.split(","));
+
+    return { directPermissions: permissions, rolePermissions: rolePermissions };
   }
 
   async updateRoles(email: string, role: string): Promise<[]> {
@@ -107,11 +122,6 @@ export class PermissionService {
     operation = this.inputClean(operation);
     scope = this.inputClean(scope);
 
-    // let permissions = await this.db("direct_permissions")
-    //   .select("create", "read", "update", "delete")
-    //   .where("email", "=", email)
-    //   .first();
-
     let permissions = await this.aggregatePermissions(email);
 
     for (let op of operation) {
@@ -154,12 +164,10 @@ export class PermissionService {
       .select("roles")
       .where("email", "=", email)
       .first();
-    console.log(roles);
 
     let rolePermissions = await this.db("roles")
       .select("create", "read", "update", "delete")
-      .whereIn("role", ["admin", "whitehorse"]);
-    console.log(rolePermissions);
+      .whereIn("role", roles.roles.split(","));
 
     let aggregatePermissions = permissions;
 

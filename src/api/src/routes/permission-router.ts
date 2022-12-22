@@ -53,11 +53,16 @@ permissionRouter.get("/test", async (req: Request, res: Response) => {
   );
 
   await permissionService
-    .check("maxrparker@gmail.com", ["update"], "form_update")
+    .getPermissionMap("maxrparker@gmail.com")
+    .then((value) => {
+      console.log("permission map", value);
+    });
+
+  await permissionService
+    .check("maxrparker@gmail.com", ["create", "update"], ["test1", "test"])
     .then((value) => {
       console.log("access?", value);
     });
 
-  //   permissionService.remove("maxrparker@gmail.com", ["updat", "update"], "test");
-  //   res.send("test");
+  permissionService.remove("maxrparker@gmail.com", ["updat", "update"], "test");
 });
