@@ -4,8 +4,58 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "vue-cli-service serve",
+    "build:web": "vue-cli-service build",
+    "build:docker": "vue-cli-service build --no-unsafe-inline --dest ../app/dist/web",
+    "lint": "vue-cli-service lint"
   },
   "author": "Michael Johnson",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "@auth0/auth0-spa-js": "^2.0.1",
+    "@vueuse/sound": "^2.0.0",
+    "axios": "^1.2.1",
+    "core-js": "^3.26.1",
+    "moment": "^2.29.4",
+    "vue": "^2.7.14",
+    "vue-barcode-reader": "1.0.3",
+    "vue-currency-input": "^3.0.3",
+    "vue-loader": "^17.0.1",
+    "vue-router": "^3.2.0",
+    "vuetify": "^2.6.13",
+    "vuetify-datetime-picker": "^2.1.1",
+    "vuex": "^3.4.0"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-router": "~5.0.8",
+    "@vue/cli-plugin-vuex": "~5.0.8",
+    "@vue/cli-service": "~5.0.8",
+    "@vue/eslint-config-prettier": "^7.0.0",
+    "eslint": "^8.30.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-vue": "^9.8.0",
+    "prettier": "^2.8.1",
+    "vue-eslint-parser": "^9.1.0",
+    "vue-template-compiler": "^2.7.14"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "eslint:recommended",
+      "@vue/prettier"
+    ],
+    "parserOptions": {
+      "parser": "babel-eslint"
+    },
+    "rules": {}
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ]
 }

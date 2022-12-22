@@ -1,8 +1,8 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 
-import homeRoutes from "@/modules/home/router";
-import authenticationRoutes from "@/modules/authentication/router";
+// import homeRoutes from "@/modules/home/router";
+// import authenticationRoutes from "@/modules/authentication/router";
 
 Vue.use(VueRouter);
 
@@ -12,20 +12,20 @@ const routes = [
     component: () => import("@/views/Default.vue"),
   },
 
-  ...homeRoutes,
-  ...authenticationRoutes,
+  // ...homeRoutes,
+  // ...authenticationRoutes,
 
   {
     path: "*",
     name: "Not Found",
     component: () => import("@/views/NotFound.vue"),
-  }
+  },
 ];
 
 const router = new VueRouter({
   mode: "history",
   base: process.env.BASE_URL,
-  routes
+  routes,
 });
 
 import { getInstance } from "@/auth/auth0-plugin";
@@ -46,7 +46,7 @@ router.beforeEach(async (to, from, next) => {
     if (authService.isAuthenticated) {
       return next();
     }
-    
+
     authService.loginWithRedirect({ appState: { targetUrl: to.fullPath } });
   };
 
@@ -55,7 +55,7 @@ router.beforeEach(async (to, from, next) => {
     return guardAction();
   }
 
-  authService.$watch('isLoading', (isLoading) => {
+  authService.$watch("isLoading", (isLoading) => {
     if (isLoading === false) {
       return guardAction();
     }
@@ -78,5 +78,5 @@ async function kick() {
   // return "inactive";
 
   return;
-} 
+}
 export default router;

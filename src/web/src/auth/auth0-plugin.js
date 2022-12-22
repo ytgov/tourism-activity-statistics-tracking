@@ -3,8 +3,8 @@
  */
 
 import Vue from "vue";
-import createAuth0Client from "@auth0/auth0-spa-js";
-import { secureDelete, secureGet, securePut, securePost } from "@/store/jwt";
+import * as createAuth0Client from "@auth0/auth0-spa-js";
+// import { secureDelete, secureGet, securePut, securePost } from "@/store/jwt";
 import { getAuthConfig } from "./getAuthConfig";
 import { apiConfigUrl } from "@/config";
 
@@ -70,18 +70,18 @@ export const useAuth0 = ({
         return this.auth0Client.getTokenSilently(o);
       },
 
-      get(url) {
-        return secureGet(url);
-      },
-      put(url, body) {
-        return securePut(url, body);
-      },
-      post(url, body) {
-        return securePost(url, body);
-      },
-      delete(url) {
-        return secureDelete(url);
-      },
+      // get(url) {
+      //   return secureGet(url);
+      // },
+      // put(url, body) {
+      //   return securePut(url, body);
+      // },
+      // post(url, body) {
+      //   return securePost(url, body);
+      // },
+      // delete(url) {
+      //   return secureDelete(url);
+      // },
     },
 
     async created() {
@@ -94,10 +94,14 @@ export const useAuth0 = ({
       });
 
       try {
-        if (window.location.search.includes("code=") && window.location.search.includes("state=")) {
+        if (
+          window.location.search.includes("code=") &&
+          window.location.search.includes("state=")
+        ) {
           const { appState } = await this.auth0Client.handleRedirectCallback();
 
-          if (appState && appState.targetUrl) this.targetUrl = appState.targetUrl;
+          if (appState && appState.targetUrl)
+            this.targetUrl = appState.targetUrl;
 
           onRedirectCallback(appState);
         }

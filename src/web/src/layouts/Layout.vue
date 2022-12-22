@@ -86,12 +86,6 @@
       </v-container>
     </v-main>
 
-    <v-overlay v-model="showOverlay">
-      <div class="text-center">
-        <v-progress-circular indeterminate size="64" class="mb-5"></v-progress-circular>
-        <h1 class="title">Loading Signing Authorities</h1>
-      </div>
-    </v-overlay>
   </v-app>
 </template>
 
