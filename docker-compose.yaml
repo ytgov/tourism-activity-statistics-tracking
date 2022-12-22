@@ -1,15 +1,17 @@
 version: "3"
 
 services:
-  web:
+  app:
     build: .
+    container_name: tasty-app
     depends_on:
       - sqldb
     restart: unless-stopped
     ports:
       - 3000:3000
 
-  sqldb:
+  db:
+  container_name: tasty-app
     image: mcr.microsoft.com/mssql/server:2019-latest
     restart: unless-stopped
     env_file:
@@ -20,3 +22,6 @@ services:
 
 volumes:
   sqlsystem:
+
+
+
