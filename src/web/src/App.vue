@@ -1,12 +1,9 @@
-<template>
-  <v-app>
-    <router-view />
-  </v-app>
-</template>
+<script setup lang="ts">
+import BasicLayout from "./layout/BasicLayout.vue";
 
-<script>
-export default {
-  name: "App",
-  components: {},
-};
+components: {
+  BasicLayout;
+}
 </script>
+
+<template><basic-layout /></template>
