@@ -1,27 +1,16 @@
 import { createApp } from "vue";
-import "./style.css";
 import App from "./App.vue";
+import { createPinia } from "pinia";
+import { router } from "./routes";
 
-// Vuetify
-import "vuetify/styles";
-import { createVuetify } from "vuetify";
-import { md2 } from "vuetify/blueprints";
-import * as components from "vuetify/components";
-import * as directives from "vuetify/directives";
-import router from "./routes";
+// Plugins
+import { registerPlugins } from "./plugins";
 
-const vuetify = createVuetify({
-  components,
-  directives,
-  blueprint: md2,
-});
+const pinia = createPinia();
 
 const app = createApp(App);
-
-app.use(vuetify);
+app.use(pinia);
 app.use(router);
-app.component("DefaultLayout", () => {
-  return import("./layout/DefaultLayout.vue");
-});
+registerPlugins(app);
 
 app.mount("#app");

@@ -4,9 +4,9 @@
     <Dashboard />
   </div>
 </template>
-<script> 
+<script lang="ts"> 
 
-import Dashboard from "@/components/Dashboard.vue";
+import Dashboard from "@/modules/home/views/Dashboard.vue";
 export default {
   name: "Default",
   components: {

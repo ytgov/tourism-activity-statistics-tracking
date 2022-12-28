@@ -1,9 +1,20 @@
 <script setup lang="ts">
-import BasicLayout from "./layout/BasicLayout.vue";
+import Notifications from "@/components/Notifications.vue";
+
+import { useAuthStore } from "@/store/AuthStore";
+import { useApiStore } from "@/store/ApiStore";
 
 components: {
-  BasicLayout;
+  Notifications;
 }
+
+const auth = useAuthStore();
+const api = useApiStore();
 </script>
 
-<template><basic-layout /></template>
+<template>
+  <v-app>
+    <router-view />
+    <notifications />
+  </v-app>
+</template>
