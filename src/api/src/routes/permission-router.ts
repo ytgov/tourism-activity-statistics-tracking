@@ -46,23 +46,22 @@ permissionRouter.get(
 );
 
 permissionRouter.get("/test", async (req: Request, res: Response) => {
-  await permissionService.add(
-    "maxrparker@gmail.com",
-    ["create", "update", "delete"],
-    ["test1", "test", "yup", "yas"]
-  );
-
-  await permissionService
-    .getPermissionMap("maxrparker@gmail.com")
-    .then((value) => {
-      console.log("permission map", value);
-    });
-
-  await permissionService
-    .check("maxrparker@gmail.com", ["create", "update"], ["test1", "test"])
-    .then((value) => {
-      console.log("access?", value);
-    });
-
-  permissionService.remove("maxrparker@gmail.com", ["updat", "update"], "test");
+  // await permissionService.add(
+  //   "maxrparker@gmail.com",
+  //   ["create", "update", "delete"],
+  //   "Watson.lake"
+  // );
+  // await permissionService
+  //   .getPermissionMapByOperation("maxrparker@gmail.com")
+  //   .then((value) => {
+  //     console.log("permission map", value);
+  //   });
+  // await permissionService
+  //   .check("maxrparker@gmail.com", ["update", "create"], ["Watson.lake"])
+  //   .then((value) => {
+  //     console.log("access?", value);
+  //   });
+  // permissionService.remove("maxrparker@gmail.com", ["Watson.lake"], "update");
+  // permissionService.getPermissionMapByScope("maxrparker@gmail.com");
+  //console.log(permissionService.decomposeScope("watson lake.formb.otherstuff"));
 });

@@ -1,4 +1,4 @@
-import { Permissions, PermissionsInternal } from "../data/models";
+import { PermissionsString, PermissionsArray } from "../data/models";
 import { Knex } from "knex";
 
 export class PermissionService {
@@ -13,13 +13,34 @@ export class PermissionService {
     return [];
   }
 
-  async getPermissionMap(email: string): Promise<any> {
+  async getPermissionMapByOperation(email: string): Promise<any> {
     //return permissions, showing which came from role assignments
 
     let permissions = await this.db("direct_permissions")
       .select("create", "read", "update", "delete")
       .where("email", "=", email)
       .first();
+
+    let roles = await this.db("user")
+      .select("roles")
+      .where("email", "=", email)
+      .first();
+
+    let rolePermissions = await this.db("roles")
+      .select("role", "create", "read", "update", "delete")
+      .whereIn("role", roles.roles.split(","));
+
+    return { directPermissions: permissions, rolePermissions: rolePermissions };
+  }
+
+  //TODO
+  async getPermissionMapByScope(email: string) {
+    let permissions = this.stringPermsToArrayPerms(
+      await this.db("direct_permissions")
+        .select("create", "read", "update", "delete")
+        .where("email", "=", email)
+        .first()
+    );
 
     let roles = await this.db("user")
       .select("roles")
@@ -43,13 +64,15 @@ export class PermissionService {
     operation: string[] | string,
     scope: string[] | string
   ): Promise<any> {
-    const insertObject = {} as PermissionsInternal;
+    const insertObject = {} as PermissionsArray;
     insertObject.email = email;
 
-    let permissions = await this.db("direct_permissions")
-      .select("create", "read", "update", "delete")
-      .where("email", "=", email)
-      .first();
+    let permissions = this.stringPermsToArrayPerms(
+      await this.db("direct_permissions")
+        .select("create", "read", "update", "delete")
+        .where("email", "=", email)
+        .first()
+    );
 
     operation = this.inputClean(operation);
     scope = this.inputClean(scope);
@@ -62,13 +85,11 @@ export class PermissionService {
         op === "delete"
       ) {
         permissions[op] && permissions[op].length > 0 ? permissions[op] : "[]";
-        insertObject[op] = JSON.stringify(
-          this.clearDuplicates([...scope, ...JSON.parse(permissions[op])])
-        );
+        insertObject[op] = this.clearDuplicates([...scope, ...permissions[op]]);
       }
     }
     return this.db("direct_permissions")
-      .insert(insertObject)
+      .insert(this.arrayPermsToStringPerms(insertObject))
       .onConflict("email")
       .merge();
   }
@@ -78,13 +99,15 @@ export class PermissionService {
     operation: string[] | string,
     scope: string[] | string
   ): Promise<any> {
-    const insertObject = {} as PermissionsInternal;
+    const insertObject = {} as PermissionsArray;
     insertObject.email = email;
 
-    let permissions = await this.db("direct_permissions")
-      .select("create", "read", "update", "delete")
-      .where("email", "=", email)
-      .first();
+    let permissions = this.stringPermsToArrayPerms(
+      await this.db("direct_permissions")
+        .select("create", "read", "update", "delete")
+        .where("email", "=", email)
+        .first()
+    );
 
     operation = this.inputClean(operation);
     scope = this.inputClean(scope);
@@ -96,19 +119,15 @@ export class PermissionService {
         op === "update" ||
         op === "delete"
       ) {
-        permissions[op] =
-          permissions[op] && permissions[op].length > 0
-            ? permissions[op]
-            : "[]";
-        insertObject[op] = JSON.stringify(
-          this.clearDuplicates(
-            [...JSON.parse(permissions[op])].filter((x) => !scope.includes(x))
-          )
+        permissions[op] && permissions[op].length > 0 ? permissions[op] : "[]";
+        insertObject[op] = this.clearDuplicates(
+          [...permissions[op]].filter((x) => !scope.includes(x))
         );
       }
     }
+
     return this.db("direct_permissions")
-      .insert(insertObject)
+      .insert(this.arrayPermsToStringPerms(insertObject))
       .onConflict("email")
       .merge();
   }
@@ -155,10 +174,12 @@ export class PermissionService {
   }
 
   async aggregatePermissions(email: string) {
-    let permissions = await this.db("direct_permissions")
-      .select("create", "read", "update", "delete")
-      .where("email", "=", email)
-      .first();
+    let permissions = this.stringPermsToArrayPerms(
+      await this.db("direct_permissions")
+        .select("create", "read", "update", "delete")
+        .where("email", "=", email)
+        .first()
+    );
 
     let roles = await this.db("user")
       .select("roles")
@@ -171,25 +192,97 @@ export class PermissionService {
 
     let aggregatePermissions = permissions;
 
-    for (let rolePermission of rolePermissions) {
-      for (let op in rolePermission) {
-        permissions[op] = JSON.stringify(
-          this.clearDuplicates([
-            ...JSON.parse(
-              permissions[op] && permissions[op].length > 0
-                ? permissions[op]
-                : "[]"
-            ),
-            ...JSON.parse(
-              rolePermission[op] && rolePermission[op].length > 0
-                ? rolePermission[op]
-                : "[]"
-            ),
-          ])
-        );
+    for (let role of rolePermissions) {
+      role = this.stringPermsToArrayPerms(role);
+      for (let op of Object.keys(role)) {
+        if (aggregatePermissions[op]) {
+          aggregatePermissions[op] = this.clearDuplicates([
+            ...aggregatePermissions[op],
+            ...role[op],
+          ]);
+        } else {
+          aggregatePermissions[op] = role[op];
+        }
       }
     }
-    return aggregatePermissions;
+    return this.arrayPermsToStringPerms(aggregatePermissions);
+  }
+
+  stringPermsToArrayPerms(permissions: PermissionsString): PermissionsArray {
+    let arrayPermissions = {} as PermissionsArray;
+    arrayPermissions.email = permissions.email;
+
+    arrayPermissions.create = JSON.parse(
+      permissions.create && permissions.create.length > 0
+        ? permissions.create
+        : "[]"
+    );
+
+    arrayPermissions.read = JSON.parse(
+      permissions.read && permissions.read.length > 0 ? permissions.read : "[]"
+    );
+
+    arrayPermissions.update = JSON.parse(
+      permissions.update && permissions.update.length > 0
+        ? permissions.update
+        : "[]"
+    );
+
+    arrayPermissions.delete = JSON.parse(
+      permissions.delete && permissions.delete.length > 0
+        ? permissions.delete
+        : "[]"
+    );
+    return arrayPermissions;
+  }
+
+  arrayPermsToStringPerms(permissions: PermissionsArray): PermissionsString {
+    let stringPermissions = {} as PermissionsString;
+    stringPermissions.email = permissions.email;
+
+    permissions.create
+      ? (stringPermissions.create = JSON.stringify(permissions.create))
+      : delete stringPermissions.create;
+    permissions.read
+      ? (stringPermissions.read = JSON.stringify(permissions.read))
+      : delete stringPermissions.read;
+    permissions.update
+      ? (stringPermissions.update = JSON.stringify(permissions.update))
+      : delete stringPermissions.update;
+    permissions.delete
+      ? (stringPermissions.delete = JSON.stringify(permissions.delete))
+      : delete stringPermissions.delete;
+
+    return stringPermissions;
+  }
+
+  decomposeScope(scope: string): string[] {
+    let scopeArray = scope.split(".");
+    let decomposedScope = [];
+    for (let i = 0; i < scopeArray.length; i++) {
+      decomposedScope.push(scopeArray.slice(0, i + 1).join("."));
+    }
+    return decomposedScope;
+  }
+
+  arrayFlip(array: Array<string>): Array<string> {
+    return Object.keys(array).reduce((ret: any, key: any) => {
+      ret[array[key]] = key;
+      return ret;
+    }, {});
+  }
+
+  flipPermissions(permissions: PermissionsArray): Object {
+    let operations = ["create", "read", "update", "delete"];
+    let returnObject = {} as Record<string, string[]>;
+
+    for (let op of operations) {
+      permissions[op] && permissions[op].length > 0 ? permissions[op] : "[]";
+      // permissions[op] = this.arrayFlip(permissions[op]);
+      returnObject[permissions[op]] = ["1", "2"];
+    }
+
+    return permissions;
   }
 
   //   async addOperationAlias(
