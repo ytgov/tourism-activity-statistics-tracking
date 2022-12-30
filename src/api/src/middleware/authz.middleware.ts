@@ -28,7 +28,7 @@ export async function isAdmin(req: Request, res: Response, next: NextFunction) {
 }
 
 export async function loadUser(req: Request, res: Response, next: NextFunction) {
-  const db = req.store.Users as UserService;
+  const db = req.store.UserStore;
 
   let sub = req.user.sub;
   const token = req.headers.authorization || "";

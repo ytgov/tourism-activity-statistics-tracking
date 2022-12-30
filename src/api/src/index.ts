@@ -7,10 +7,10 @@ import { API_PORT, FRONTEND_URL, APPLICATION_NAME } from "./config";
 import { doHealthCheck } from "./utils/health-check";
 import { userRouter, configRouter, permissionRouter } from "./routes";
 import { CreateMigrationRoutes } from "./data";
+import { RequiresData } from "./middleware";
 import axios from "axios";
 
 //import { configureLocalAuthentication } from "./routes/auth-local";
-import { RequiresData } from "./middleware";
 //runMigrations();
 
 const app = express();
@@ -43,9 +43,11 @@ app.use(
   })
 );
 
+app.use(RequiresData);
+
 CreateMigrationRoutes(app);
 
-app.get("/api/healthCheck", RequiresData, (req: Request, res: Response) => {
+app.get("/api/healthCheck", (req: Request, res: Response) => {
   // app.get("/api/healthCheck",  (req: Request, res: Response) => {
   doHealthCheck(req, res);
 });

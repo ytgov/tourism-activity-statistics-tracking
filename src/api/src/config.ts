@@ -11,7 +11,7 @@ switch (process.env.NODE_ENV) {
     path = `../.env.production`;
     break;
   default:
-    path = `.env.development`;
+    path = `../../.env.development`;
 }
 
 dotenv.config({ path: path });
@@ -28,8 +28,7 @@ export const VUE_APP: any = Object.keys(obj)
 
 console.log(`LOADING ${NODE_ENV} CONFIG FROM ${path}`);
 
-export const apiBaseUrl =
-  process.env.NODE_ENV == "production" ? "" : "http://localhost:3000";
+export const apiBaseUrl = process.env.NODE_ENV == "production" ? "" : "http://localhost:3000";
 export const API_PORT = process.env.API_PORT || "3000";
 export const FRONTEND_URL = process.env.FRONTEND_URL || "";
 
@@ -64,6 +63,7 @@ export const MAIL_CONFIG = {
   secure: false, // true for 465, false for other ports
 };
 
+export const DB_CLIENT = process.env.DB_CLIENT || "mssql";
 export const DB_NAME = process.env.DB_NAME || "";
 export const DB_USER = process.env.DB_USER || "";
 export const DB_PASS = process.env.DB_PASS || "";
@@ -71,7 +71,7 @@ export const DB_HOST = process.env.DB_HOST || "";
 export const DB_PORT = process.env.DB_PORT || "1433";
 
 export const DB_CONFIG = {
-  client: "postgres",
+  client: DB_CLIENT,
   connection: {
     host: DB_HOST,
     user: DB_USER,

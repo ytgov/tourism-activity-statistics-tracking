@@ -1,7 +1,6 @@
 import express, { Request, Response } from "express";
 import { param } from "express-validator";
 import { RequiresData, ReturnValidationErrors } from "../middleware";
-import { UserService } from "../services";
 import _ from "lodash";
 import { checkJwt, loadUser } from "../middleware/authz.middleware";
 
@@ -10,14 +9,14 @@ userRouter.use(RequiresData);
 userRouter.use(checkJwt, loadUser);
 
 userRouter.get("/me", async (req: Request, res: Response) => {
-  const db = req.store.Users as UserService;
+  const db = req.store.UserStore;
   let person = req.user;
   let me = await db.getByEmail(person.email);
   return res.json({ data: me });
 });
 
 userRouter.get("/", async (req: Request, res: Response) => {
-  const db = req.store.Users as UserService;
+  const db = req.store.UserStore;
   let list = await db.getAll();
 
   for (let user of list) {
@@ -39,7 +38,7 @@ userRouter.put(
   [param("email").notEmpty().isString()],
   ReturnValidationErrors,
   async (req: Request, res: Response) => {
-    const db = req.store.Users as UserService;
+    const db = req.store.UserStore;
     let { email } = req.params;
     let { roles, status, department_admin_for } = req.body;
 
@@ -60,7 +59,7 @@ userRouter.put(
 );
 
 userRouter.post("/", async (req: Request, res: Response) => {
-  const db = req.store.Users as UserService;
+  const db = req.store.UserStore;
   let { email } = req.body;
   let existing = await db.getByEmail(email);
   if (existing) {
@@ -70,43 +69,35 @@ userRouter.post("/", async (req: Request, res: Response) => {
   return res.json(user);
 });
 
-userRouter.delete(
-  "/:id",
-  [param("id").notEmpty()],
-  ReturnValidationErrors,
-  async (req: Request, res: Response) => {
-    const db = req.store.Users as UserService;
-    let { id } = req.params;
+userRouter.delete("/:id", [param("id").notEmpty()], ReturnValidationErrors, async (req: Request, res: Response) => {
+  const db = req.store.UserStore;
+  let { id } = req.params;
 
-    await db.delete(id);
+  await db.delete(id);
 
-    let list = await db.getAll();
-    return res.json({
-      data: list,
-      messages: [{ variant: "success", text: "User removed" }],
-    });
-  }
-);
+  let list = await db.getAll();
+  return res.json({
+    data: list,
+    messages: [{ variant: "success", text: "User removed" }],
+  });
+});
 
 // this will be removed when the application is deployed
-userRouter.get(
-  "/make-admin/:email/:key",
-  async (req: Request, res: Response) => {
-    const db = req.store.Users as UserService;
-    let user = await db.getByEmail(req.params.email);
+userRouter.get("/make-admin/:email/:key", async (req: Request, res: Response) => {
+  const db = req.store.UserStore;
+  let user = await db.getByEmail(req.params.email);
 
-    let { email, key } = req.params;
+  let { email, key } = req.params;
 
-    if (key != process.env.SECRET) {
-      return res.status(403).send("Your key is invalid");
-    }
-
-    if (user) {
-      console.log(`KEY MATCHES, making ${email} an admin`);
-      user.roles = ["Admin"];
-      //await db.update(email, user);
-    }
-
-    res.send("Done");
+  if (key != process.env.SECRET) {
+    return res.status(403).send("Your key is invalid");
   }
-);
+
+  if (user) {
+    console.log(`KEY MATCHES, making ${email} an admin`);
+    user.roles = ["Admin"];
+    //await db.update(email, user);
+  }
+
+  res.send("Done");
+});

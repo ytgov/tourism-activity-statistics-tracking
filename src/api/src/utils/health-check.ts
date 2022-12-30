@@ -5,8 +5,7 @@ export async function doHealthCheck(req: Request, res: Response) {
   let appHealth = [];
 
   //database check
-  let data = req.store as Storage;
-  let dbConnected = await data.isInitialized;
+  let dbConnected = await req.store.isInitialized;
   appHealth.push({
     name: "Database",
     status: dbConnected,

@@ -1,17 +1,18 @@
 import { defineStore, acceptHMRUpdate } from "pinia";
 import { useNotificationStore } from "@/store/NotificationStore";
 import { useAuth0 } from "@auth0/auth0-vue";
-import api from "./helpers/axiosAPIConfig";
+import { SecureAPICall } from "./helpers/axiosAPIConfig";
 
 //refs are reactive variables
 //computed are reactive variables that are derived from other reactive variables
 // functions are equivalent to methods/actions in vue2
 
 export const useApiStore = defineStore("api", () => {
-  const { getAccessTokenSilently, isAuthenticated } = useAuth0();
+  const auth = useAuth0();
+
   const m = useNotificationStore();
 
-  function doApiErrorMessage(err) {
+  function doApiErrorMessage(err: any) {
     let status_code = 500;
     if (err.response) {
       status_code = err.response.status || 500;
@@ -26,16 +27,16 @@ export const useApiStore = defineStore("api", () => {
     m.notify(message);
   }
 
-  async function secureCall(method, url) {
+  async function secureCall(method: string, url: string) {
     let response;
-    if (!isAuthenticated.value) {
+    /* if (!auth.isAuthenticated.value) {
       console.log("Not Authenticated");
       response = { error: "Not Authenticated" };
       return;
-    }
-    response = await getAccessTokenSilently().then(async (token) => {
-      return await api(method, token)
-        .request(url)
+    } */
+    response = await auth.getAccessTokenSilently().then(async (token) => {
+      return await SecureAPICall(method, token)
+        .request({ url })
         .then((res) => {
           return res.data;
         })
@@ -47,23 +48,8 @@ export const useApiStore = defineStore("api", () => {
 
     return response;
   }
-  async function call(method, url) {
-    let response;
-
-    response = await api(method, token)
-      .request(url)
-      .then((res) => {
-        console.log(res);
-        return res.data;
-      })
-      .catch((err) => {
-        doApiErrorMessage(err);
-        return { error: err };
-      });
-  }
   return {
     secureCall,
-    call,
   };
 });
 

@@ -2,6 +2,7 @@ import { defineStore, getActivePinia } from "pinia";
 
 import { useNotificationStore } from "@/store/NotificationStore";
 import { useApiStore } from "@/store/ApiStore";
+import { PROFILE_URL } from "@/urls";
 
 let m = useNotificationStore();
 
@@ -33,7 +34,7 @@ export const useUserStore = defineStore("user", {
   actions: {
     async initialize() {
       console.log("Initializing user store...");
-      await waitSomeSeconds(1);
+      await waitSomeSeconds(3);
       //go and get user details
       this.user = {
         display_name: "Avery Lewis ",
@@ -41,6 +42,8 @@ export const useUserStore = defineStore("user", {
         roles: ["System Administrator"],
         ynet_id: "alewis",
       };
+
+      await this.getRoles();
 
       console.log("Initialized user store");
     },
@@ -65,7 +68,7 @@ export const useUserStore = defineStore("user", {
       console.log("getting roles");
 
       let api = useApiStore();
-      api.secureCall("get", "api/roles");
+      api.secureCall("get", PROFILE_URL);
     },
   },
 });

@@ -2,7 +2,7 @@
 
 import axios from "axios";
 
-export default function (method, token) {
+export function SecureAPICall(method: string, token: string) {
   let headers = {
     "Content-Type": "application/json",
   };

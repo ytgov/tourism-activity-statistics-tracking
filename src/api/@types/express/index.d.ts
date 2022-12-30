@@ -1,10 +1,22 @@
+import { Express } from "express-serve-static-core";
 
-namespace Express {
-    export interface Request {
-        user?: any;
-        store?: any;
-        oidc?: any;
-
-        isAuthenticated(): boolean;
-    }
+interface Store {
+  UserStore: UserService;
+  isInitialized: boolean;
 }
+
+declare module "express-serve-static-core" {
+  interface Request {
+    store: Store;
+    user?: any;
+  }
+}
+
+/* 
+namespace Express {
+  export interface Request {
+    user?: any;
+    //store?: Storage;
+  }
+}
+ */

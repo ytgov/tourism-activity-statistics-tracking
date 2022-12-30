@@ -1,12 +1,14 @@
-import { MONGO_URL, MONGO_DB } from "../config";
+import { sqldb } from ".";
 import { GenericService, UserService } from "../services";
 
 export class Storage {
   isInitialized: boolean = false;
 
-  Users!: UserService;
+  UserStore!: UserService;
 
-  constructor() {}
+  constructor() {
+    this.UserStore = new UserService(sqldb);
+  }
 
   async ensureConnected(): Promise<string> {
     // if (this.isInitialized)
