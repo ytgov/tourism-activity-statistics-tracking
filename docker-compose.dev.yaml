@@ -10,6 +10,8 @@ services:
       - db/sapassword.env
     environment:
       - DB_PASS=${DB_PASS}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
     volumes:
       - sqlsystem:/var/opt/mssql/
 
