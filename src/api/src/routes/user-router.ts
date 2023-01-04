@@ -1,17 +1,22 @@
 import express, { Request, Response } from "express";
 import { param } from "express-validator";
 import { RequiresData, ReturnValidationErrors } from "../middleware";
+import { UserService, PermissionService } from "../services";
 import _ from "lodash";
 import { checkJwt, loadUser } from "../middleware/authz.middleware";
+import { sqldb } from "../data";
 
 export const userRouter = express.Router();
 userRouter.use(RequiresData);
 userRouter.use(checkJwt, loadUser);
 
+const permissionService = new PermissionService(sqldb);
+
 userRouter.get("/me", async (req: Request, res: Response) => {
   const db = req.store.UserStore;
   let person = req.user;
   let me = await db.getByEmail(person.email);
+  me.scopes = await permissionService.aggregatePermissions(person.email);
   return res.json({ data: me });
 });
 
@@ -69,35 +74,43 @@ userRouter.post("/", async (req: Request, res: Response) => {
   return res.json(user);
 });
 
-userRouter.delete("/:id", [param("id").notEmpty()], ReturnValidationErrors, async (req: Request, res: Response) => {
-  const db = req.store.UserStore;
-  let { id } = req.params;
+userRouter.delete(
+  "/:id",
+  [param("id").notEmpty()],
+  ReturnValidationErrors,
+  async (req: Request, res: Response) => {
+    const db = req.store.UserStore;
+    let { id } = req.params;
 
-  await db.delete(id);
+    await db.delete(id);
 
-  let list = await db.getAll();
-  return res.json({
-    data: list,
-    messages: [{ variant: "success", text: "User removed" }],
-  });
-});
+    let list = await db.getAll();
+    return res.json({
+      data: list,
+      messages: [{ variant: "success", text: "User removed" }],
+    });
+  }
+);
 
 // this will be removed when the application is deployed
-userRouter.get("/make-admin/:email/:key", async (req: Request, res: Response) => {
-  const db = req.store.UserStore;
-  let user = await db.getByEmail(req.params.email);
+userRouter.get(
+  "/make-admin/:email/:key",
+  async (req: Request, res: Response) => {
+    const db = req.store.UserStore;
+    let user = await db.getByEmail(req.params.email);
 
-  let { email, key } = req.params;
+    let { email, key } = req.params;
 
-  if (key != process.env.SECRET) {
-    return res.status(403).send("Your key is invalid");
+    if (key != process.env.SECRET) {
+      return res.status(403).send("Your key is invalid");
+    }
+
+    if (user) {
+      console.log(`KEY MATCHES, making ${email} an admin`);
+      user.roles = ["Admin"];
+      //await db.update(email, user);
+    }
+
+    res.send("Done");
   }
-
-  if (user) {
-    console.log(`KEY MATCHES, making ${email} an admin`);
-    user.roles = ["Admin"];
-    //await db.update(email, user);
-  }
-
-  res.send("Done");
-});
+);

@@ -1,7 +1,6 @@
 import _ from "lodash";
 import { User } from "../data/models";
-import { DB_CONFIG } from "../config";
-import knex, { Knex } from "knex";
+import { Knex } from "knex";
 
 export class UserService {
   private db: Knex;
@@ -11,33 +10,33 @@ export class UserService {
   }
 
   async create(user: User): Promise<any> {
-    let existing = await this.db("user")
+    let existing = await this.db("users")
       .where(user.email)
       .count("email as cnt");
 
     if (existing[0].cnt > 0) return undefined;
 
-    return await this.db("user").insert(user);
+    return await this.db("users").insert(user);
   }
 
   async update(email: string, item: any) {
-    return this.db("user").where({ email }).update(item);
+    return this.db("users").where({ email }).update(item);
   }
 
   async getAll() {
-    return this.db("user");
+    return this.db("users");
   }
 
   async getByEmail(email: string): Promise<any | undefined> {
-    return this.db("user").where({ email }).first();
+    return this.db("users").where({ email }).first();
   }
 
   async getById(id: string): Promise<any | undefined> {
-    return this.db("user").where({ id }).first();
+    return this.db("users").where({ id }).first();
   }
 
   async delete(id: string) {
-    return this.db("user").where({ id }).del();
+    return this.db("users").where({ id }).del();
   }
 
   // async getAll(query = {}): Promise<User[]> {
@@ -46,7 +45,7 @@ export class UserService {
 
   //TODO
   async getBySub(sub: string): Promise<User | null> {
-    return this.db("user").where({ sub }).first();
+    return this.db("users").where({ sub }).first();
   }
 
   // async delete(id: string) {

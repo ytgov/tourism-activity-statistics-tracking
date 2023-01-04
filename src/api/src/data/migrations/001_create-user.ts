@@ -2,7 +2,7 @@ import * as knex from "knex";
 
 exports.up = function (knex: knex.Knex, Promise: any) {
   console.log("Created user table");
-  return knex.schema.createTable("user", function (t) {
+  return knex.schema.createTable("users", function (t) {
     t.string("email", 200).notNullable().primary();
     t.string("first_name", 100).notNullable();
     t.string("last_name", 100).notNullable();
@@ -14,5 +14,5 @@ exports.up = function (knex: knex.Knex, Promise: any) {
 
 exports.down = function (knex: knex.Knex, Promise: any) {
   console.log("Dropped user table");
-  return knex.schema.dropTable("user");
+  return knex.schema.dropTable("users");
 };

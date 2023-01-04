@@ -6,6 +6,7 @@ export interface User {
   last_name: string;
   status?: string;
   roles?: string | string[];
+  scopes?: string[];
   department_admin_for?: string | string[];
   display_name?: string;
 

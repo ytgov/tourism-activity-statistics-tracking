@@ -4,14 +4,12 @@
     <Dashboard />
   </div>
 </template>
-<script lang="ts"> 
-
+<script lang="ts">
 import Dashboard from "@/modules/home/views/Dashboard.vue";
 export default {
   name: "Default",
   components: {
-     Dashboard
+    Dashboard,
   },
 };
-
 </script>

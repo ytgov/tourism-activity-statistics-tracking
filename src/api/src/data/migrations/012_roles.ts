@@ -5,10 +5,7 @@ exports.up = function (knex: knex.Knex, Promise: any) {
   return knex.schema.createTable("roles", function (t) {
     t.increments("id").notNullable().primary();
     t.string("role").notNullable();
-    t.string("create");
-    t.string("read");
-    t.string("update");
-    t.string("delete");
+    t.string("scopes");
     t.string("created_by");
     t.timestamp("create_date").notNullable().defaultTo(knex.fn.now());
   });

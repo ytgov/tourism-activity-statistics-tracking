@@ -4,7 +4,11 @@ import { Storage } from "../data";
 
 const store = new Storage();
 
-export async function ReturnValidationErrors(req: Request, res: Response, next: NextFunction) {
+export async function ReturnValidationErrors(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
@@ -14,7 +18,11 @@ export async function ReturnValidationErrors(req: Request, res: Response, next: 
   next();
 }
 
-export function RequiresAuthentication(req: Request, res: Response, next: NextFunction) {
+export function RequiresAuthentication(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   if (req.user && req.user.isAuthentiated()) {
     return next();
   }
@@ -22,7 +30,11 @@ export function RequiresAuthentication(req: Request, res: Response, next: NextFu
   res.redirect("/api/auth/login");
 }
 
-export async function RequiresData(req: Request, res: Response, next: NextFunction) {
+export async function RequiresData(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   //   let store = new Storage();
 
   store
