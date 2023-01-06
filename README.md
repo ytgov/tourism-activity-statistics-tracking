@@ -3,7 +3,7 @@
 # Development
 
 ### 1. Configure Environment Variables
-### 2. Bring up MongoDB
+### 2. Bring up SQL Server
 From the root of the project directory run:
 ```
  docker compose --env-file ./.env.development --file docker-compose.dev.yaml up --build

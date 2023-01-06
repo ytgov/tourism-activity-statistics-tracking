@@ -3,7 +3,10 @@ import jwt from "express-jwt";
 import axios from "axios";
 import jwksRsa from "jwks-rsa";
 import { AUTH0_DOMAIN, AUTH0_AUDIENCE } from "../config";
-import { UserService } from "../services";
+import { DirectoryService, UserService } from "../services";
+
+import { sqldb } from "../data";
+const db = new UserService(sqldb);
 
 export const checkJwt = jwt({
   secret: jwksRsa.expressJwtSecret({
@@ -19,65 +22,84 @@ export const checkJwt = jwt({
   algorithms: ["RS256"],
 });
 
-export async function isAdmin(req: Request, res: Response, next: NextFunction) {
-  const { roles } = req.user;
-
-  // these folks can do it all!
-  if (roles.includes("System Admin")) return next();
-  return res.status(403).send(`You are not a System Admin`);
-}
-
 export async function loadUser(req: Request, res: Response, next: NextFunction) {
-  const db = req.store.UserStore;
-
   let sub = req.user.sub;
   const token = req.headers.authorization || "";
+
   let u = await db.getBySub(sub);
 
   if (u) {
     req.user = { ...req.user, ...u };
+    console.log("loadUser - User match already in database", req.user.YNET_ID);
     return next();
   }
 
-  console.log("User not found in DB:", sub, "Looking up userinfo from Auth0");
+  console.log("loadUser - User match not in database - do lookup", req.user);
 
   await axios
     .get(`${AUTH0_DOMAIN}userinfo`, { headers: { authorization: token } })
     .then(async (resp) => {
+      console.log("loadUser - userinfoResp", resp.data.email, resp.data.sub);
+
       if (resp.data && resp.data.sub) {
         let email = resp.data.email;
-        let first_name = resp.data.given_name;
-        let last_name = resp.data.family_name;
-        sub = resp.data.sub;
 
-        let u = await db.getBySub(sub);
+        if (!email) email = `${resp.data.given_name}.${resp.data.given_name}@yukon-no-email.ca`;
 
-        if (u) {
-          req.user = { ...req.user, ...u };
+        let emailUser = await db.getByEmail(resp.data.email);
+        let subUser = await db.getBySub(resp.data.sub);
+
+        if (subUser) {
+          req.user = { ...req.user, ...subUser };
+          console.log("loadUser - resp with sub", req.user);
+
+          next();
+        } else if (emailUser) {
+          await db.update(emailUser.email, { sub: resp.data.sub });
+          req.user = { ...req.user, ...emailUser };
+          console.log("loadUser - resp with email after update", req.user);
+
+          next();
         } else {
-          if (!email) email = `${first_name}.${last_name}@yukon-no-email.ca`;
+          let directoryService = new DirectoryService();
+          await directoryService.connect();
 
-          let eu = await db.getByEmail(email);
+          console.log("loadUser - searching directory for", email);
 
-          if (eu) {
-            eu.sub = sub;
-            await db.update(eu._id || "", eu);
+          let adUser = await directoryService.getUserByEmail(email);
+          let ynet_id = "";
+          let directory_id = "";
 
-            console.log("UPDATE USER SUB " + email, sub, u);
-            req.user = { ...req.user, ...eu };
-          } else {
-            u = await db.create({ email, sub, status: "Active", first_name, last_name, roles: ["Employee"] });
-            console.log("CREATING USER FOR " + email, sub, u);
-            req.user = { ...req.user, ...u };
+          console.log("loadUser - after directory search", adUser?.userPrincipalName);
+
+          if (adUser) {
+            ynet_id = adUser.userPrincipalName
+              .toLowerCase()
+              .replace("@ynet.gov.yk.ca", "")
+              .replace("#ext#@yukongovernment.onmicrosoft.com", "");
+            directory_id = adUser.id;
           }
-        }
-      } else {
-        console.log("Payload from Auth0 is strange or failed for", req.user);
-      }
 
-      next();
+          let createUser = {
+            email,
+            sub,
+            status: "Active",
+            first_name: resp.data.given_name,
+            last_name: resp.data.family_name,
+            ynet_id,
+            directory_id,
+            create_date: new Date()
+          };
+
+          console.log("loadUser - CREATING", createUser);
+
+          await db.create(createUser);
+
+          req.user = { ...req.user, ...createUser };
+
+          next();
+        }
+      }
     })
-    .catch((err) => {
-      console.log("ERROR pulling userinfo from Auth0", err);
-    });
+    .catch();
 }

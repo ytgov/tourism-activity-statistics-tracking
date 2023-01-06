@@ -8,10 +8,7 @@ export class PermissionService {
   }
 
   async add(email: string, scope: string[] | string): Promise<any> {
-    let permissions = await this.db("direct_permissions")
-      .select("*")
-      .where({ email })
-      .first();
+    let permissions = await this.db("direct_permissions").select("*").where({ email }).first();
 
     permissions = permissions.scopes ? JSON.parse(permissions.scopes) : [];
 
@@ -22,27 +19,20 @@ export class PermissionService {
     return this.db("direct_permissions")
       .insert({
         email: email,
-        scopes: this.arrayPermsToStringPerms(
-          insertPermissions.sort(this.sortCaseInsensitive)
-        ),
+        scopes: this.arrayPermsToStringPerms(insertPermissions.sort(this.sortCaseInsensitive)),
       })
       .onConflict("email")
       .merge();
   }
 
   async remove(email: string, scope: string[] | string): Promise<any> {
-    let permissions = await this.db("direct_permissions")
-      .select("*")
-      .where({ email })
-      .first();
+    let permissions = await this.db("direct_permissions").select("*").where({ email }).first();
 
     permissions = permissions.scopes ? JSON.parse(permissions.scopes) : [];
 
     scope = this.inputClean(scope);
 
-    let insertPermissions = permissions.filter(
-      (perm: any) => !scope.includes(perm)
-    );
+    let insertPermissions = permissions.filter((perm: any) => !scope.includes(perm));
 
     return this.db("direct_permissions")
       .insert({
@@ -54,10 +44,7 @@ export class PermissionService {
   }
 
   async check(email: string, scope: string[] | string): Promise<boolean> {
-    let permissions = await this.db("direct_permissions")
-      .select("*")
-      .where({ email })
-      .first();
+    let permissions = await this.db("direct_permissions").select("*").where({ email }).first();
 
     permissions = await this.aggregatePermissions(email);
 
@@ -85,9 +72,7 @@ export class PermissionService {
 
     return this.db("roles").insert({
       role: role,
-      scopes: this.arrayPermsToStringPerms(
-        scope.sort(this.sortCaseInsensitive)
-      ),
+      scopes: this.arrayPermsToStringPerms(scope.sort(this.sortCaseInsensitive)),
     });
   }
 
@@ -107,9 +92,7 @@ export class PermissionService {
     return this.db("roles")
       .insert({
         role: role,
-        scopes: this.arrayPermsToStringPerms(
-          insertPermissions.sort(this.sortCaseInsensitive)
-        ),
+        scopes: this.arrayPermsToStringPerms(insertPermissions.sort(this.sortCaseInsensitive)),
       })
       .onConflict("role")
       .merge();
@@ -122,9 +105,7 @@ export class PermissionService {
 
     scope = this.inputClean(scope);
 
-    let insertPermissions = roleRow.filter(
-      (perm: any) => !scope.includes(perm)
-    );
+    let insertPermissions = roleRow.filter((perm: any) => !scope.includes(perm));
 
     return this.db("roles")
       .insert({
@@ -179,10 +160,9 @@ export class PermissionService {
   }
 
   async aggregatePermissions(email: string) {
-    let permissions = await this.db("direct_permissions")
-      .select("*")
-      .where({ email })
-      .first();
+    let permissions = await this.db("direct_permissions").select("*").where({ email }).first();
+
+    if (!permissions) return [];
 
     permissions = permissions.scopes ? JSON.parse(permissions.scopes) : [];
 
@@ -190,27 +170,20 @@ export class PermissionService {
 
     roles = roles.roles ? JSON.parse(roles.roles) : [];
 
-    let rolePermissions = await this.db("roles")
-      .select("scopes")
-      .whereIn("role", roles);
+    let rolePermissions = await this.db("roles").select("scopes").whereIn("role", roles);
 
     rolePermissions = rolePermissions.map((role: any) => {
       return role.scopes ? JSON.parse(role.scopes) : [];
     });
 
     let aggregatePermissions = [...permissions, ...rolePermissions.flat()];
-    aggregatePermissions = this.clearDuplicates(aggregatePermissions).sort(
-      this.sortCaseInsensitive
-    );
+    aggregatePermissions = this.clearDuplicates(aggregatePermissions).sort(this.sortCaseInsensitive);
 
     return aggregatePermissions;
   }
 
   arrayPermsToStringPerms(permissions: Array<string>): string {
-    let stringPermissions =
-      permissions && permissions.length > 0
-        ? JSON.stringify(permissions)
-        : "[]";
+    let stringPermissions = permissions && permissions.length > 0 ? JSON.stringify(permissions) : "[]";
 
     return stringPermissions;
   }
