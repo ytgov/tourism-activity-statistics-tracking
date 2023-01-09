@@ -5,7 +5,7 @@
     <v-row>
       <v-col cols="6">
         <v-text-field
-          v-model="profile.first_name"
+          v-model="user.first_name"
           dense
           outlined
           label="First name"
@@ -15,7 +15,7 @@
       </v-col>
       <v-col cols="6">
         <v-text-field
-          v-model="profile.last_name"
+          v-model="user.last_name"
           dense
           outlined
           label="Last name"
@@ -26,7 +26,7 @@
 
       <v-col cols="6">
         <v-text-field
-          v-model="profile.email"
+          v-model="user.email"
           dense
           outlined
           label="Email"
@@ -49,19 +49,16 @@
 
 <script lang="ts">
 import { useUserStore } from "@/store/UserStore";
-import { mapActions } from "pinia";
+import { mapActions, mapState } from "pinia";
 export default {
-  setup() {
-    // const m = useUserStore();
-    // return { m };
-  },
+  setup() {},
   name: "Profile",
   data() {
-    return {
-      profile: this.$auth0.user,
-    };
+    return {};
   },
   computed: {
+    ...mapState(useUserStore, ["user"]),
+
     myRoles: function () {
       // if (this.roles && this.roles.length > 0) return this.roles.join(", ");
       return ["Editor", "Admin", "Super Admin"].join(", ");

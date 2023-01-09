@@ -4,7 +4,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 export default {
   data: function () {
     return {};
@@ -16,15 +16,7 @@ export default {
       });
     },
   },
-  computed: {
-    user: function () {
-      console.log(this.$auth0);
-      return this.$auth0.user;
-    },
-    stuff: function () {
-      return window.location.pathname;
-    },
-  },
+  computed: {},
 };
 </script>
 r

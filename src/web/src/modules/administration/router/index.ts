@@ -8,6 +8,7 @@ const routes = [
       {
         path: "/administration",
         component: () => import("../views/Administration.vue"),
+        beforeEnter: authGuard,
       },
     ],
   },

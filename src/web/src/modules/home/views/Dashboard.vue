@@ -4,17 +4,13 @@
     <v-row class="text-center">
       <v-col cols="6">
         <BaseCard class="default">
-          <div class="text-h5 font-weight-light mb-10">
-            Here is the dashboard
-          </div>
-          <div class="text-h6 font-weight-light mt-5mb-5">
-            Stuff happens here
-          </div>
+          <div class="text-h5 font-weight-light mb-10">Here is the dashboard</div>
+          <div class="text-h6 font-weight-light mt-5mb-5">Stuff happens here</div>
         </BaseCard>
       </v-col>
     </v-row>
 
-    <v-row v-if="$auth0.isAuthenticated.value">
+    <v-row>
       <v-col>
         <SecureAPI />
       </v-col>

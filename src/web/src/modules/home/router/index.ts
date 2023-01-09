@@ -8,6 +8,7 @@ const routes = [
       {
         path: "/dashboard",
         component: () => import("../views/Dashboard.vue"),
+        beforeEnter: authGuard,
       },
       {
         path: "/profile",

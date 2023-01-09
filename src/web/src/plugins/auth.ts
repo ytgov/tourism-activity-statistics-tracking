@@ -1,5 +1,5 @@
 import { createAuth0 } from "@auth0/auth0-vue";
-import { AUTH_DOMAIN, AUTH_AUDIENCE, AUTH_CLIENT_ID } from "../config";
+import { domain, client_id, audience } from "../../auth-config.json";
 
 // The "@auth0/auth0-vue" library composables to load and manage
 // authentication information.  In components this information is available
@@ -10,9 +10,9 @@ import { AUTH_DOMAIN, AUTH_AUDIENCE, AUTH_CLIENT_ID } from "../config";
 // work around this issue.
 
 export const Auth0Plugin = createAuth0({
-  domain: AUTH_DOMAIN,
-  client_id: AUTH_CLIENT_ID,
-  audience: AUTH_AUDIENCE,
+  domain,
+  client_id,
+  audience,
   redirect_uri: window.location.origin,
   // Uncomment the following line to use the config from .env file
   // redirect_uri: REDIRECT_URI,

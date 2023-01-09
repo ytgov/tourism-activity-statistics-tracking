@@ -17,7 +17,9 @@ function waitSomeSeconds(seconds: number) {
 export const useUserStore = defineStore("user", {
   state: () => ({
     user: {
-      display_name: " ",
+      display_name: "",
+      first_name: "",
+      last_name: "",
       email: "",
       roles: [""],
       ynet_id: "",
@@ -34,16 +36,13 @@ export const useUserStore = defineStore("user", {
   actions: {
     async initialize() {
       console.log("Initializing user store...");
-      await waitSomeSeconds(3);
-      //go and get user details
-      this.user = {
-        display_name: "Avery Lewis ",
-        email: "avery.lewise@yukon.ca",
-        roles: ["System Administrator"],
-        ynet_id: "alewis",
-      };
 
-      await this.getRoles();
+      await this.loadCurrentUser();
+
+      //await waitSomeSeconds(3);
+      //go and get user details
+
+      //await this.getRoles();
 
       console.log("Initialized user store");
     },
@@ -63,6 +62,13 @@ export const useUserStore = defineStore("user", {
         variant: "success",
       };
       m.notify(message);
+    },
+    async loadCurrentUser() {
+      let api = useApiStore();
+      await api.secureCall("get", PROFILE_URL).then((resp) => {
+        this.user = resp.data;
+        this.user.roles = [];
+      });
     },
     async getRoles() {
       console.log("getting roles");
