@@ -1,0 +1,19 @@
+version: "3"
+
+services:
+  sqldb: 
+    build: db/.
+    ports: 
+      - "1433:1433"
+    env_file: 
+      - db/sqlserver.env
+      - db/sapassword.env
+    environment:
+      - DB_PASS=${DB_PASS}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+    volumes:
+      - sqlsystem:/var/opt/mssql/
+
+volumes:
+  sqlsystem:

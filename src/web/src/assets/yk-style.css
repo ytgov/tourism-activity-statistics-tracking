@@ -1,0 +1,48 @@
+body,
+h1,
+h2,
+h3,
+p,
+div {
+  color: #323232 !important;
+}
+* {
+  font-family: Montserrat, Helvetica, Arial, sans-serif !important;
+}
+
+a {
+  text-decoration: none;
+}
+
+.page-wrapper {
+  background-color: #ddd;
+}
+/* 
+.v-card.default {
+    background-color: #fff2d5;
+} */
+
+.v-card.default .v-data-table {
+  border: 1px #e0d5bb solid;
+}
+
+.v-card.default .v-card__title {
+  font-size: 1rem;
+  line-height: 1.4rem;
+}
+
+ul.v-breadcrumbs {
+  padding-left: 0;
+}
+
+.text-error {
+  color: #9b1b27 !important;
+}
+
+.v-btn.v-size--small {
+  font-size: 14px;
+}
+
+.v-data-table.row-clickable > .v-data-table__wrapper > table > tbody > tr:hover > td {
+  cursor: pointer;
+}
