@@ -6,7 +6,10 @@ p,
 div {
   color: #323232 !important;
 }
-* {
+html{
+  font-size: 15px;
+}
+*,.text-body-1, .text-h6, .text-h5 {
   font-family: Montserrat, Helvetica, Arial, sans-serif !important;
 }
 
@@ -15,7 +18,7 @@ a {
 }
 
 .page-wrapper {
-  background-color: #ddd;
+  background-color: #eee;
 }
 /* 
 .v-card.default {
