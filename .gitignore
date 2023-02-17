@@ -91,6 +91,7 @@ creds.txt
 # Nuxt.js build / generate output
 .nuxt
 dist
+app
 
 # Gatsby files
 .cache/

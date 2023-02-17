@@ -62,4 +62,5 @@ export interface AppUser {
   first_name: string;
   last_name: string;
   display_name: string;
+  is_admin: Boolean;
 }

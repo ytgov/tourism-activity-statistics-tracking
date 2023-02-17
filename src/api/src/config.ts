@@ -5,13 +5,13 @@ export const NODE_ENV = process.env.NODE_ENV || "development";
 let path;
 switch (process.env.NODE_ENV) {
   case "test":
-    path = `../../.env.test`;
+    path = `.env.test`;
     break;
   case "production":
-    path = `../.env.production`;
+    path = `.env.production`;
     break;
   default:
-    path = `../../.env.development`;
+    path = `.env.development`;
 }
 
 dotenv.config({ path: path });

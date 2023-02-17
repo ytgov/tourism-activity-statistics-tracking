@@ -49,3 +49,7 @@ ul.v-breadcrumbs {
 .v-data-table.row-clickable > .v-data-table__wrapper > table > tbody > tr:hover > td {
   cursor: pointer;
 }
+
+.v-toolbar.bg-primary .v-toolbar-title__placeholder {
+  color: white !important;
+}

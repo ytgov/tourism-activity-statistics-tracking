@@ -1,5 +1,4 @@
 <template>
-
   <data-entry></data-entry>
 </template>
 
