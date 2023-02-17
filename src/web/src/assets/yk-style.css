@@ -6,7 +6,10 @@ p,
 div {
   color: #323232 !important;
 }
-* {
+html{
+  font-size: 15px;
+}
+*,.text-body-1, .text-h6, .text-h5 {
   font-family: Montserrat, Helvetica, Arial, sans-serif !important;
 }
 
@@ -15,7 +18,7 @@ a {
 }
 
 .page-wrapper {
-  background-color: #ddd;
+  background-color: #eee;
 }
 /* 
 .v-card.default {
@@ -45,4 +48,8 @@ ul.v-breadcrumbs {
 
 .v-data-table.row-clickable > .v-data-table__wrapper > table > tbody > tr:hover > td {
   cursor: pointer;
+}
+
+.v-toolbar.bg-primary .v-toolbar-title__placeholder {
+  color: white !important;
 }

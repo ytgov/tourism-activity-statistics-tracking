@@ -11,7 +11,7 @@
         class="ml-2"></v-text-field>
     </template>
     <template v-slot:right>
-      <v-btn color="primary" size="small">New User</v-btn>
+      <v-btn color="primary" size="small" variant="flat" prepend-icon="mdi-plus">New User</v-btn>
     </template>
 
     <v-data-table
@@ -56,8 +56,8 @@ export default {
     async loadItems() {
       await this.getAllUsers();
     },
-    rowClick(event: Event, { item }) {
-      this.selectUser(item.value);
+    rowClick(event: Event, thing:any) {
+      this.selectUser(thing.item.value);
     },
   },
 };
