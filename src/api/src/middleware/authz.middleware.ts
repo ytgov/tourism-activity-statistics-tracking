@@ -5,8 +5,7 @@ import jwksRsa from "jwks-rsa";
 import { AUTH0_DOMAIN, AUTH0_AUDIENCE } from "../config";
 import { DirectoryService, UserService } from "../services";
 
-import { sqldb } from "../data";
-const db = new UserService(sqldb);
+const db = new UserService();
 
 export const checkJwt = jwt({
   secret: jwksRsa.expressJwtSecret({
@@ -77,6 +76,7 @@ export async function loadUser(req: Request, res: Response, next: NextFunction) 
             last_name: resp.data.family_name,
             ynet_id,
             directory_id,
+            is_admin: false,
             create_date: new Date(),
           };
 

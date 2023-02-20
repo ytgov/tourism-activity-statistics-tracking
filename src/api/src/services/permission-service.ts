@@ -1,14 +1,10 @@
 import { Knex } from "knex";
+import { sqldb } from "../data";
 
 export class PermissionService {
-  private db: Knex;
-
-  constructor(db: Knex) {
-    this.db = db;
-  }
 
   async add(email: string, scope: string[] | string): Promise<any> {
-    let permissions = await this.db("direct_permissions").select("*").where({ email }).first();
+    let permissions = await sqldb("direct_permissions").select("*").where({ email }).first();
 
     permissions = permissions.scopes ? JSON.parse(permissions.scopes) : [];
 
@@ -16,7 +12,7 @@ export class PermissionService {
 
     let insertPermissions = this.clearDuplicates([...scope, ...permissions]);
 
-    return this.db("direct_permissions")
+    return sqldb("direct_permissions")
       .insert({
         email: email,
         scopes: this.arrayPermsToStringPerms(insertPermissions.sort(this.sortCaseInsensitive)),
@@ -26,7 +22,7 @@ export class PermissionService {
   }
 
   async remove(email: string, scope: string[] | string): Promise<any> {
-    let permissions = await this.db("direct_permissions").select("*").where({ email }).first();
+    let permissions = await sqldb("direct_permissions").select("*").where({ email }).first();
 
     permissions = permissions.scopes ? JSON.parse(permissions.scopes) : [];
 
@@ -34,7 +30,7 @@ export class PermissionService {
 
     let insertPermissions = permissions.filter((perm: any) => !scope.includes(perm));
 
-    return this.db("direct_permissions")
+    return sqldb("direct_permissions")
       .insert({
         email: email,
         scopes: this.arrayPermsToStringPerms(insertPermissions),
@@ -44,7 +40,7 @@ export class PermissionService {
   }
 
   async check(email: string, scope: string[] | string): Promise<boolean> {
-    let permissions = await this.db("direct_permissions").select("*").where({ email }).first();
+    let permissions = await sqldb("direct_permissions").select("*").where({ email }).first();
 
     permissions = await this.aggregatePermissions(email);
 
@@ -64,24 +60,24 @@ export class PermissionService {
   }
 
   async createRole(role: string, scope: string[] | string): Promise<any> {
-    let roleRow = await this.db("roles").select("*").where({ role }).first();
+    let roleRow = await sqldb("roles").select("*").where({ role }).first();
 
     if (roleRow) return undefined;
 
     scope = this.inputClean(scope);
 
-    return this.db("roles").insert({
+    return sqldb("roles").insert({
       role: role,
       scopes: this.arrayPermsToStringPerms(scope.sort(this.sortCaseInsensitive)),
     });
   }
 
   async deleteRole(role: string): Promise<any> {
-    return this.db("roles").where({ role }).del();
+    return sqldb("roles").where({ role }).del();
   }
 
   async addRoleScope(role: string, scope: string[] | string): Promise<any> {
-    let roleRow = await this.db("roles").select("*").where({ role }).first();
+    let roleRow = await sqldb("roles").select("*").where({ role }).first();
 
     roleRow = roleRow.scopes ? JSON.parse(roleRow.scopes) : [];
 
@@ -89,7 +85,7 @@ export class PermissionService {
 
     let insertPermissions = this.clearDuplicates([...scope, ...roleRow]);
 
-    return this.db("roles")
+    return sqldb("roles")
       .insert({
         role: role,
         scopes: this.arrayPermsToStringPerms(insertPermissions.sort(this.sortCaseInsensitive)),
@@ -99,7 +95,7 @@ export class PermissionService {
   }
 
   async removeRoleScope(role: string, scope: string[] | string): Promise<any> {
-    let roleRow = await this.db("roles").select("*").where({ role }).first();
+    let roleRow = await sqldb("roles").select("*").where({ role }).first();
 
     roleRow = roleRow.scopes ? JSON.parse(roleRow.scopes) : [];
 
@@ -107,7 +103,7 @@ export class PermissionService {
 
     let insertPermissions = roleRow.filter((perm: any) => !scope.includes(perm));
 
-    return this.db("roles")
+    return sqldb("roles")
       .insert({
         role: role,
         scopes: this.arrayPermsToStringPerms(insertPermissions),
@@ -117,7 +113,7 @@ export class PermissionService {
   }
 
   async addUserRole(email: string, role: string): Promise<any> {
-    let roles = await this.db("users").select("roles").where({ email }).first();
+    let roles = await sqldb("users").select("roles").where({ email }).first();
 
     roles = roles.roles ? JSON.parse(roles.roles) : [];
 
@@ -125,25 +121,25 @@ export class PermissionService {
 
     roles = this.clearDuplicates(roles).sort(this.sortCaseInsensitive);
 
-    return this.db("users")
+    return sqldb("users")
       .where({ email })
       .update({ roles: JSON.stringify(roles) });
   }
 
   async removeUserRole(email: string, role: string): Promise<any> {
-    let roles = await this.db("users").select("roles").where({ email }).first();
+    let roles = await sqldb("users").select("roles").where({ email }).first();
 
     roles = roles.roles ? JSON.parse(roles.roles) : [];
 
     roles = roles.filter((r: any) => r !== role);
 
-    return this.db("users")
+    return sqldb("users")
       .where({ email })
       .update({ roles: JSON.stringify(roles) });
   }
 
   async getRoles(email: string): Promise<any> {
-    let roles = await this.db("users").select("roles").where({ email }).first();
+    let roles = await sqldb("users").select("roles").where({ email }).first();
 
     roles = roles.roles ? JSON.parse(roles.roles) : [];
 
@@ -160,17 +156,17 @@ export class PermissionService {
   }
 
   async aggregatePermissions(email: string) {
-    let permissions = await this.db("direct_permissions").select("*").where({ email }).first();
+    let permissions = await sqldb("direct_permissions").select("*").where({ email }).first();
 
     if (!permissions) return [];
 
     permissions = permissions.scopes ? JSON.parse(permissions.scopes) : [];
 
-    let roles = await this.db("users").select("roles").where({ email }).first();
+    let roles = await sqldb("users").select("roles").where({ email }).first();
 
     roles = roles.roles ? JSON.parse(roles.roles) : [];
 
-    let rolePermissions = await this.db("roles").select("scopes").whereIn("role", roles);
+    let rolePermissions = await sqldb("roles").select("scopes").whereIn("role", roles);
 
     rolePermissions = rolePermissions.map((role: any) => {
       return role.scopes ? JSON.parse(role.scopes) : [];

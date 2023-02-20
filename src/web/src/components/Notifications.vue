@@ -4,8 +4,8 @@
     location="bottom right"
     :color="prettyMessage(message).color"
   >
-    <v-icon class="mr-3">{{ prettyMessage(message).icon }}</v-icon>
-    {{ message.text }}
+    <v-icon class="mr-3" color="white">{{ prettyMessage(message).icon }}</v-icon>
+    <span style="color: white">{{ message.text }}</span>
   </v-snackbar>
 </template>
 
@@ -19,8 +19,8 @@ export default {
 
     // this subscription will be kept even after the component is unmounted
     notifcation.$subscribe((mutation, state) => {
-      console.log(mutation.type, mutation.storeId);
-      console.log(state.showNotification);
+      //console.log(mutation.type, mutation.storeId);
+      //console.log(state.showNotification);
     });
   },
 

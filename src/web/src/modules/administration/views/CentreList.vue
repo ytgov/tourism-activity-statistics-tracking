@@ -14,6 +14,8 @@
     </template>
   </v-breadcrumbs>
 
+  <h1 class="mb-4">Visitor Centres</h1>
+
   <base-card showHeader="t" heading="">
     <template v-slot:left>
       <v-text-field
@@ -26,7 +28,9 @@
         class="ml-2"></v-text-field>
     </template>
     <template v-slot:right>
-      <v-btn color="primary" size="small" variant="flat" prepend-icon="mdi-plus">New User</v-btn>
+      <v-btn color="primary" size="small" variant="flat" prepend-icon="mdi-plus" @click="newCentreClick"
+        >New Centre</v-btn
+      >
     </template>
 
     <v-data-table
@@ -37,29 +41,30 @@
       @click:row="rowClick"></v-data-table>
   </base-card>
 
-  <user-editor></user-editor>
+  <centre-editor></centre-editor>
 </template>
 <script lang="ts">
 import { mapActions, mapState } from "pinia";
 import { useAdminStore } from "../store";
-import UserEditor from "../components/UserEditor.vue";
+import CentreEditor from "../components/CentreEditor.vue";
 
 export default {
-  components: { UserEditor },
+  components: { CentreEditor },
   data: () => ({
     headers: [
-      { title: "Name", value: "display_name" },
-      { title: "Email", value: "email" },
+      { title: "Name", value: "name" },
+      { title: "Community", value: "community" },
+      { title: "Region", value: "region" },
     ],
     search: "",
   }),
   computed: {
-    ...mapState(useAdminStore, ["users", "isLoading"]),
+    ...mapState(useAdminStore, ["centres", "isLoading"]),
     items() {
-      return this.users;
+      return this.centres;
     },
     totalItems() {
-      return this.users.length;
+      return this.centres.length;
     },
     breadcrumbs() {
       return [
@@ -68,7 +73,7 @@ export default {
           to: "/administration",
         },
         {
-          title: "Users",
+          title: "Visitor Centres",
         },
       ];
     },
@@ -77,13 +82,18 @@ export default {
     this.loadItems();
   },
   methods: {
-    ...mapActions(useAdminStore, ["getAllUsers", "selectUser"]),
+    ...mapActions(useAdminStore, ["getAllCentres", "selectCentre"]),
 
     async loadItems() {
-      await this.getAllUsers();
+      await this.getAllCentres();
     },
-    rowClick(event: Event, thing:any) {
-      this.selectUser(thing.item.value);
+    rowClick(event: Event, thing: any) {
+
+      console.log(thing.item.raw)
+      this.selectCentre(thing.item.raw);
+    },
+    newCentreClick() {
+      this.selectCentre({ is_active: true });
     },
   },
 };

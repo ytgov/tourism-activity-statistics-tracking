@@ -1,5 +1,4 @@
-import { sqldb } from ".";
-import { GenericService, UserService } from "../services";
+import { UserService } from "../services";
 
 export class Storage {
   isInitialized: boolean = false;
@@ -7,7 +6,7 @@ export class Storage {
   UserStore!: UserService;
 
   constructor() {
-    this.UserStore = new UserService(sqldb);
+    this.UserStore = new UserService();
   }
 
   async ensureConnected(): Promise<string> {

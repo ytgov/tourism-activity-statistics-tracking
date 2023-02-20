@@ -6,19 +6,34 @@ p,
 div {
   color: #323232 !important;
 }
-html{
+html {
   font-size: 15px;
 }
-*,.text-body-1, .text-h6, .text-h5 {
+*,
+.text-body-1,
+.text-h6,
+.text-h5 {
   font-family: Montserrat, Helvetica, Arial, sans-serif !important;
+}
+h1 {
+  display: block;
+  font-size: 2em;
+  font-weight: bold;
+  margin-block-start: 0.67em;
+  margin-block-end: 0.67em;
 }
 
 a {
   text-decoration: none;
+  color: #00818f;
+}
+a:hover {
+  color: #00707c;
 }
 
 .page-wrapper {
   background-color: #eee;
+  height: 100% !important;
 }
 /* 
 .v-card.default {
@@ -31,6 +46,11 @@ a {
 
 .v-card.default .v-card__title {
   font-size: 1rem;
+  line-height: 1.4rem;
+}
+
+.v-card-title {
+  font-size: 1.1rem;
   line-height: 1.4rem;
 }
 
@@ -52,4 +72,15 @@ ul.v-breadcrumbs {
 
 .v-toolbar.bg-primary .v-toolbar-title__placeholder {
   color: white !important;
+}
+.v-breadcrumbs-item--disabled {
+  color: #323232 !important;
+  opacity: 80% !important;
+}
+
+table.table {
+  width: 100%;
+  text-align: left;
+  margin-top: 10px;
+  font-size: 1.05em;
 }

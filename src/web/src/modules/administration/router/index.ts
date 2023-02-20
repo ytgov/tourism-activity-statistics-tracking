@@ -15,6 +15,11 @@ const routes = [
         component: () => import("../views/UserList.vue"),
         beforeEnter: authGuard,
       },
+      {
+        path: "/administration/visitor-centres",
+        component: () => import("../views/CentreList.vue"),
+        beforeEnter: authGuard,
+      },
     ],
   },
 ];

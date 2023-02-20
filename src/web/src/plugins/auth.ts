@@ -11,9 +11,11 @@ import { domain, client_id, audience } from "../../auth-config.json";
 
 export const Auth0Plugin = createAuth0({
   domain,
-  client_id,
-  audience,
-  redirect_uri: window.location.origin,
+  clientId: client_id,
+  authorizationParams: {
+    audience,
+    redirect_uri: window.location.origin,
+  },
   // Uncomment the following line to use the config from .env file
   // redirect_uri: REDIRECT_URI,
 });
