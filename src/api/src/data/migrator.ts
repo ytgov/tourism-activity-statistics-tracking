@@ -18,18 +18,6 @@ export async function migrateLatest() {
 }
 
 export async function CreateMigrationRoutes(app: Express) {
-  // this initializes the migration tables if they don't already exist
-  await sqldb.migrate.list({ directory: join(__dirname, "migrations") });
-  const level = await sqldb.migrate.status({ directory: join(__dirname, "migrations") });
-
-  if (level < 0) {
-    console.log("-------- Migrations are behind - I'm going run them for you ---------");
-    await migrateLatest();
-  }
-  else {
-    console.log("-------- Migrations are up to date ---------");
-  }
-
   app.get("/migrate/up", async (req: Request, res: Response) => {
     res.send(await migrateUp());
   });
@@ -41,4 +29,15 @@ export async function CreateMigrationRoutes(app: Express) {
   app.get("/migrate/latest", async (req: Request, res: Response) => {
     res.send(await migrateLatest());
   });
+
+  // this initializes the migration tables if they don't already exist
+  await sqldb.migrate.list({ directory: join(__dirname, "migrations") });
+  const level = await sqldb.migrate.status({ directory: join(__dirname, "migrations") });
+
+  if (level < 0) {
+    console.log("-------- Migrations are behind - I'm going run them for you ---------");
+    await migrateLatest();
+  } else {
+    console.log("-------- Migrations are up to date ---------");
+  }
 }
