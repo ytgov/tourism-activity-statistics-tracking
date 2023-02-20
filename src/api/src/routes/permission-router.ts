@@ -1,22 +1,18 @@
 import express, { Request, Response } from "express";
 import { param } from "express-validator";
+import _ from "lodash";
 import { RequiresData, ReturnValidationErrors } from "../middleware";
 import { PermissionService } from "../services";
-import { sqldb } from "../data";
-
-import _ from "lodash";
 
 export const permissionRouter = express.Router();
 permissionRouter.use(RequiresData);
 
-const permissionService = new PermissionService(sqldb);
+const permissionService = new PermissionService();
 
 permissionRouter.get("/check", async (req: Request, res: Response) => {
-  await permissionService
-    .check(req.body.email, req.body.scope)
-    .then((value) => {
-      res.status(200).send(value);
-    });
+  await permissionService.check(req.body.email, req.body.scope).then((value) => {
+    res.status(200).send(value);
+  });
 });
 
 permissionRouter.get("/getPermissions", async (req: Request, res: Response) => {
@@ -26,23 +22,16 @@ permissionRouter.get("/getPermissions", async (req: Request, res: Response) => {
 });
 
 permissionRouter.get("/addPermissions", async (req: Request, res: Response) => {
-  await permissionService
-    .add(req.body.email, req.body.operation)
-    .then((value) => {
-      res.status(200).send(value);
-    });
+  await permissionService.add(req.body.email, req.body.operation).then((value) => {
+    res.status(200).send(value);
+  });
 });
 
-permissionRouter.get(
-  "/removePermissions",
-  async (req: Request, res: Response) => {
-    await permissionService
-      .remove(req.body.email, req.body.scope)
-      .then((value) => {
-        res.status(200).send(value);
-      });
-  }
-);
+permissionRouter.get("/removePermissions", async (req: Request, res: Response) => {
+  await permissionService.remove(req.body.email, req.body.scope).then((value) => {
+    res.status(200).send(value);
+  });
+});
 
 permissionRouter.get("/test", async (req: Request, res: Response) => {
   // await permissionService.add("maxrparker@gmail.com", [

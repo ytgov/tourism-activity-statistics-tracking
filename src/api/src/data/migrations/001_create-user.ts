@@ -12,6 +12,7 @@ exports.up = function (knex: knex.Knex, Promise: any) {
     t.string("directory_id", 100).nullable();
     t.dateTime("create_date").notNullable();
     t.string("roles", 1000).nullable();
+    t.boolean("is_admin").notNullable().defaultTo(false);
   });
 };
 

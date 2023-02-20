@@ -6,10 +6,11 @@ export interface User {
   status: string;
   ynet_id: string;
   directory_id: string;
+  is_admin: Boolean;
   create_date: Date;
 
+  department_admin_for?: string[];
   roles?: string | string[];
   scopes?: string[];
-  department_admin_for?: string | string[];
   display_name?: string;
 }

@@ -1,16 +1,15 @@
 import { Request, Response } from "express";
-import { MONGO_HOST } from "../config";
 
 export async function doHealthCheck(req: Request, res: Response) {
   let appHealth = [];
 
   //database check
-  let dbConnected = await req.store.isInitialized;
+  //let dbConnected = await req.store.isInitialized;
   appHealth.push({
     name: "Database",
-    status: dbConnected,
+    status: "Unknown",
     loading: false,
-    helpNotes: `Check that the databases is running at: ${MONGO_HOST}`,
+    helpNotes: `Check that the databases is running at:`,
   });
 
   res.json({ appHealth });

@@ -1,4 +1,5 @@
 import { Express, Request, Response } from "express";
+import { NODE_ENV } from "../config";
 import { sqldb } from "./index";
 import { join } from "path";
 
@@ -30,14 +31,16 @@ export async function CreateMigrationRoutes(app: Express) {
     res.send(await migrateLatest());
   });
 
-  // this initializes the migration tables if they don't already exist
-  await sqldb.migrate.list({ directory: join(__dirname, "migrations") });
-  const level = await sqldb.migrate.status({ directory: join(__dirname, "migrations") });
+  if (NODE_ENV != "development") {
+    // this initializes the migration tables if they don't already exist
+    await sqldb.migrate.list({ directory: join(__dirname, "migrations") });
+    const level = await sqldb.migrate.status({ directory: join(__dirname, "migrations") });
 
-  if (level < 0) {
-    console.log("-------- Migrations are behind - I'm going run them for you ---------");
-    await migrateLatest();
-  } else {
-    console.log("-------- Migrations are up to date ---------");
+    if (level < 0) {
+      console.log("-------- Migrations are behind - I'm going run them for you ---------");
+      await migrateLatest();
+    } else {
+      console.log("-------- Migrations are up to date ---------");
+    }
   }
 }

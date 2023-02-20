@@ -16,16 +16,6 @@ switch (process.env.NODE_ENV) {
 
 dotenv.config({ path: path });
 
-// Filter out the variables that the frontend needs to know about
-let obj = process.env;
-let pattern = "VUE_APP_";
-
-export const VUE_APP: any = Object.keys(obj)
-  .filter((k) => k.includes(pattern))
-  .reduce((cur, key) => {
-    return Object.assign(cur, { [key]: obj[key] });
-  }, {});
-
 console.log(`LOADING ${NODE_ENV} CONFIG FROM ${path}`);
 
 export const apiBaseUrl = process.env.NODE_ENV == "production" ? "" : "http://localhost:3000";
@@ -37,11 +27,7 @@ export const AUTH0_AUDIENCE = process.env.VUE_APP_AUTH_AUDIENCE || "";
 
 export const APPLICATION_NAME = process.env.APPLICATION_NAME || "";
 
-export const MONGO_DB = process.env.MONGO_DB || "";
-export const MONGO_HOST = process.env.MONGO_HOST || "";
-export const MONGO_URL = `mongodb://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_HOST}`;
-
-export const MAIL_FROM = process.env.MAIL_FROM || "signing-authority@yukon.ca";
+export const MAIL_FROM = process.env.MAIL_FROM || "visitor-analytics@yukon.ca";
 export const MAIL_HOST = process.env.MAIL_HOST || "smtp.gov.yk.ca";
 export const MAIL_PORT = process.env.MAIL_PORT || 25;
 export const MAIL_USER = process.env.MAIL_USER || "";
