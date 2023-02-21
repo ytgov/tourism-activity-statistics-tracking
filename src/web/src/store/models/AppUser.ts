@@ -4,4 +4,6 @@ export interface AppUser {
   last_name: string;
   display_name: string;
   is_admin: Boolean;
+
+  scopes: string[];
 }

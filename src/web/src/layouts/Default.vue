@@ -74,6 +74,7 @@
 
 <script lang="ts">
 import { useUserStore } from "@/store/UserStore";
+import { useAdminStore } from "@/modules/administration/store";
 import { useNotificationStore } from "@/store/NotificationStore";
 
 import { mapState, mapActions, mapWritableState } from "pinia";
@@ -106,10 +107,12 @@ export default {
 
   async mounted() {
     await this.initialize();
+    await this.initializeAdmin();
     this.showOverlay = false;
   },
   methods: {
     ...mapActions(useUserStore, ["initialize", "toggleAdmin"]),
+    ...mapActions(useAdminStore, { initializeAdmin: "initialize" }),
     blip: function () {
       this.showNotification = true;
     },

@@ -30,6 +30,12 @@ export const useAdminStore = defineStore("admin", {
     },
   },
   actions: {
+    async initialize() {
+      //console.log("Initializing Admin store...");
+      await this.getAllCentres();
+      console.log("Initialized Admin store.");
+    },
+
     async getAllUsers() {
       this.isLoading = true;
       let api = useApiStore();
@@ -61,6 +67,7 @@ export const useAdminStore = defineStore("admin", {
           .secureCall("put", `${USERS_URL}/${this.selectedUser.email}`, this.selectedUser)
           .then((resp) => {
             this.users = resp.data;
+            this.unselectUser();
           })
           .finally(() => {
             this.isLoading = false;
@@ -74,6 +81,7 @@ export const useAdminStore = defineStore("admin", {
     async getAllCentres() {
       this.isLoading = true;
       let api = useApiStore();
+
       await api
         .secureCall("get", VISITORCENTRE_URL)
         .then((resp) => {

@@ -3,8 +3,8 @@ import { VisitorCentre } from "src/data/models";
 import { sqldb } from "../data";
 
 export class VisitorCentreService {
-  getAll(): Promise<VisitorCentre> {
-    return sqldb("visitor_centre");
+  getAll(query?: any): Promise<VisitorCentre[]> {
+    return sqldb("visitor_centre").where(query || {});
   }
 
   get(id: number): Promise<VisitorCentre | undefined> {

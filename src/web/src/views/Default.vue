@@ -20,8 +20,6 @@ export default {
         window.clearInterval(i);
 
         if (auth.isAuthenticated && auth.user.value) {
-          console.log(auth.user.value);
-
           this.$router.push("/dashboard");
         } else this.$router.push("/sign-in");
       }

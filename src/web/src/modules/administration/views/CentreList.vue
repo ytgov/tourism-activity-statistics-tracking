@@ -88,8 +88,6 @@ export default {
       await this.getAllCentres();
     },
     rowClick(event: Event, thing: any) {
-
-      console.log(thing.item.raw)
       this.selectCentre(thing.item.raw);
     },
     newCentreClick() {

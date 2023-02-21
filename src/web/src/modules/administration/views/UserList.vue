@@ -29,18 +29,19 @@
       <v-btn color="primary" size="small" variant="flat" prepend-icon="mdi-plus">New User</v-btn>
     </template>
 
-    <v-data-table
-      :search="search"
-      :headers="headers"
-      :items="items"
-      :loading="isLoading"
-      @click:row="rowClick"></v-data-table>
+    <v-data-table :search="search" :headers="headers" :items="items" :loading="isLoading" @click:row="rowClick">
+      <template v-slot:item.permissions="{ item }">
+        <v-chip color="yg_moss" v-if="item.raw.is_admin">Admin</v-chip>
+        <div v-else>{{ item.raw.scopes.length }}</div>
+      </template>
+    </v-data-table>
   </base-card>
 
   <user-editor></user-editor>
 </template>
 <script lang="ts">
 import { mapActions, mapState } from "pinia";
+import { cloneDeep } from "lodash";
 import { useAdminStore } from "../store";
 import UserEditor from "../components/UserEditor.vue";
 
@@ -48,8 +49,10 @@ export default {
   components: { UserEditor },
   data: () => ({
     headers: [
-      { title: "Name", value: "display_name" },
-      { title: "Email", value: "email" },
+      { title: "Name", key: "display_name" },
+      { title: "Email", key: "email" },
+      { title: "Status", key: "status" },
+      { title: "Permisions", key: "permissions" },
     ],
     search: "",
   }),
@@ -82,8 +85,8 @@ export default {
     async loadItems() {
       await this.getAllUsers();
     },
-    rowClick(event: Event, thing:any) {
-      this.selectUser(thing.item.value);
+    rowClick(event: Event, thing: any) {
+      this.selectUser(cloneDeep(thing.item.raw));
     },
   },
 };
