@@ -76,7 +76,7 @@ export const useUserStore = defineStore("user", {
       api.secureCall("get", PROFILE_URL);
     },    
     canDo(action:string): Boolean {
-      console.log("CURRENT USER CAN DO ", this.user.scope)
+      console.log("CURRENT USER CAN DO ", this.user.scopes)
 
       return true;
 

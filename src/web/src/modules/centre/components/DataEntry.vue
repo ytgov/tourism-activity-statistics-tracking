@@ -3,7 +3,7 @@
 
   <BaseCard showHeader="t" heading="" class="pb-3">
     <template v-slot:left>
-      <v-select :items="centres" label="Site" hide-details v-model="site" style="max-width: 220px"></v-select>
+      <v-select :items="relevantLocations" label="Site" hide-details v-model="site" style="max-width: 220px"></v-select>
     </template>
     <template v-slot:right>
       <v-select v-model="date" label="Date" hide-details style="max-width: 220px"></v-select>
@@ -36,7 +36,9 @@
   </BaseCard>
 </template>
 <script lang="ts">
+import { useUserStore } from "@/store/UserStore";
 import moment from "moment";
+import { mapActions, mapState } from "pinia";
 
 export default {
   name: "Dashboard",
@@ -67,7 +69,18 @@ export default {
   mounted() {
     this.date = moment().format("YYYY-MM-DD");
   },
+  computed: {
+    ...mapState(useUserStore, ["user"]),
+    relevantLocations() {
+      console.log("MY SCOPES", this.user.scopes.length);
+
+      console.log("CAN DO", this.canDo("User.Manage"));
+
+      return this.user.scopes;
+    },
+  },
   methods: {
+    ...mapActions(useUserStore, ["canDo"]),
     plusOne(location: any) {
       location.dailyTotal++;
       location.weeklyTotal = location.dailyTotal * 5;
