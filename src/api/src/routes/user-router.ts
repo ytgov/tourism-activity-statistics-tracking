@@ -28,6 +28,7 @@ userRouter.get("/", async (req: Request, res: Response) => {
 
   for (let user of list) {
     user.display_name = `${user.first_name} ${user.last_name}`;
+    user.scopes = await permissionService.aggregatePermissions(user.email);
 
     if (!user.roles) user.roles = [];
     else if (!Array.isArray(user.roles)) user.roles = [user.roles as string];
@@ -46,7 +47,7 @@ userRouter.put(
   ReturnValidationErrors,
   async (req: Request, res: Response) => {
     let { email } = req.params;
-    let { roles, status, is_admin } = req.body;
+    let { roles, status, is_admin, scopes } = req.body;
 
     let existing = await db.getByEmail(email);
 
@@ -54,7 +55,10 @@ userRouter.put(
       existing.status = status;
       existing.roles = roles;
       existing.is_admin = is_admin;
+
       await db.update(email, existing);
+      await permissionService.add(email, scopes);
+
       return res.json({
         messages: [{ variant: "success", text: "User saved" }],
       });

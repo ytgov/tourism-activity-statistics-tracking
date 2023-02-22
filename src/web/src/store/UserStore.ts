@@ -1,18 +1,10 @@
-import { defineStore, getActivePinia } from "pinia";
+import { defineStore } from "pinia";
 
 import { useNotificationStore } from "@/store/NotificationStore";
 import { useApiStore } from "@/store/ApiStore";
-import { PROFILE_URL } from "@/urls";
+import { PERMISSION_URL, PROFILE_URL } from "@/urls";
 
 let m = useNotificationStore();
-
-function waitSomeSeconds(seconds: number) {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve("T");
-    }, seconds * 1000);
-  });
-}
 
 export const useUserStore = defineStore("user", {
   state: () => ({
@@ -23,7 +15,11 @@ export const useUserStore = defineStore("user", {
       email: "",
       roles: [""],
       ynet_id: "",
+      is_admin: false,
+      scopes: [],
     },
+    permissions: [],
+    myCentres: []
   }),
   getters: {
     userRoles(state) {
@@ -35,14 +31,10 @@ export const useUserStore = defineStore("user", {
   },
   actions: {
     async initialize() {
-      console.log("Initializing user store...");
+      //console.log("Initializing user store...");
 
       await this.loadCurrentUser();
-
-      //await waitSomeSeconds(3);
-      //go and get user details
-
-      //await this.getRoles();
+      await this.loadPermissions();
 
       console.log("Initialized user store");
     },
@@ -70,11 +62,24 @@ export const useUserStore = defineStore("user", {
         this.user.roles = [];
       });
     },
+    async loadPermissions() {
+      let api = useApiStore();
+      await api.secureCall("get", PERMISSION_URL).then((resp) => {
+        this.permissions = resp.data.scopes;
+      });
+    },
+
     async getRoles() {
       console.log("getting roles");
 
       let api = useApiStore();
       api.secureCall("get", PROFILE_URL);
-    },
+    },    
+    canDo(action:string): Boolean {
+      console.log("CURRENT USER CAN DO ", this.user.scopes)
+
+      return true;
+
+    }
   },
 });

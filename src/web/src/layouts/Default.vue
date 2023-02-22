@@ -41,7 +41,7 @@
               <v-list-item-title style="font-size: 0.9rem !important">Administration</v-list-item-title>
             </v-list-item>
             <v-divider />
-            <v-list-item @click="$auth0.logout({ returnTo })">
+            <v-list-item @click="logoutClick">
               <template v-slot:prepend>
                 <v-icon>mdi-exit-run</v-icon>
               </template>
@@ -74,29 +74,35 @@
 
 <script lang="ts">
 import { useUserStore } from "@/store/UserStore";
+import { useAdminStore } from "@/modules/administration/store";
 import { useNotificationStore } from "@/store/NotificationStore";
-
 import { mapState, mapActions, mapWritableState } from "pinia";
+import { useAuth0 } from "@auth0/auth0-vue";
+
 export default {
   name: "Default",
-
-  data() {
-    return {
-      isAuthenticated: this.$auth0.isAuthenticated,
-      authUser: this.$auth0.user,
-      showOverlay: true,
-    };
-  },
+  data: () => ({
+    showOverlay: true,
+  }),
   computed: {
     ...mapWritableState(useNotificationStore, ["showNotification"]),
     ...mapState(useUserStore, ["user", "isAdmin"]),
 
+    isAuthenticated() {
+      const auth = useAuth0();
+      return auth.isAuthenticated;
+    },
+    authUser() {
+      const auth = useAuth0();
+      return auth.user;
+    },
+
     title() {
       return "Visitor Analytics";
-      // return applicationName;
     },
     username() {
-      return this.authUser.name;
+      const auth = useAuth0();
+      return auth.user.value.name;
     },
     returnTo: function () {
       return window.location.origin;
@@ -106,12 +112,18 @@ export default {
 
   async mounted() {
     await this.initialize();
+    await this.initializeAdmin();
     this.showOverlay = false;
   },
   methods: {
     ...mapActions(useUserStore, ["initialize", "toggleAdmin"]),
+    ...mapActions(useAdminStore, { initializeAdmin: "initialize" }),
     blip: function () {
       this.showNotification = true;
+    },
+    logoutClick() {
+      const auth = useAuth0();
+      auth.logout({ returnTo: this.returnTo });
     },
   },
 };

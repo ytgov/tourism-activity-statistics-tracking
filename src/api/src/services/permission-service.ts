@@ -1,24 +1,15 @@
-import { Knex } from "knex";
 import { sqldb } from "../data";
 
 export class PermissionService {
-
   async add(email: string, scope: string[] | string): Promise<any> {
-    let permissions = await sqldb("direct_permissions").select("*").where({ email }).first();
-
-    permissions = permissions.scopes ? JSON.parse(permissions.scopes) : [];
-
     scope = this.inputClean(scope);
+    let insertPermissions = this.clearDuplicates([...scope]);
+    await sqldb("direct_permissions").where({ email }).delete();
 
-    let insertPermissions = this.clearDuplicates([...scope, ...permissions]);
-
-    return sqldb("direct_permissions")
-      .insert({
-        email: email,
-        scopes: this.arrayPermsToStringPerms(insertPermissions.sort(this.sortCaseInsensitive)),
-      })
-      .onConflict("email")
-      .merge();
+    return sqldb("direct_permissions").insert({
+      email: email,
+      scopes: this.arrayPermsToStringPerms(insertPermissions.sort(this.sortCaseInsensitive)),
+    });
   }
 
   async remove(email: string, scope: string[] | string): Promise<any> {

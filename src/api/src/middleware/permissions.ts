@@ -1,8 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { PermissionService } from "../services";
 
-import { sqldb } from "../data";
-
 export async function hasAccess(req: Request, res: Response, next: NextFunction) {
   const permissionService = new PermissionService();
   const { email, scope } = req.body;
