@@ -1,11 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { PermissionService } from "../services";
 
-export async function hasAccess(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
+export async function hasAccess(req: Request, res: Response, next: NextFunction) {
   const permissionService = new PermissionService();
   const { email, scope } = req.body;
 
