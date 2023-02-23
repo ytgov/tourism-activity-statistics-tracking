@@ -123,7 +123,7 @@ export default {
     },
     logoutClick() {
       const auth = useAuth0();
-      auth.logout({ returnTo: this.returnTo });
+      auth.logout({ logoutParams: { returnTo: this.returnTo } });
     },
   },
 };

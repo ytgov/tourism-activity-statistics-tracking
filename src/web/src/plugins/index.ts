@@ -5,13 +5,12 @@
  */
 
 import BaseComponents from "./baseComponents";
-import { Auth0Plugin } from "./auth";
+//import { Auth0Plugin } from "./auth";
 import vuetify from "./vuetify";
 import { App } from "vue";
 
 export function registerPlugins(app: App<Element>) {
   BaseComponents.register(app);
   app.use(vuetify);
-  // @ts-ignore
-  app.use(Auth0Plugin);
+ //app.use(Auth0Plugin);
 }
