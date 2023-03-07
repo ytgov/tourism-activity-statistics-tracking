@@ -9,6 +9,7 @@ exports.up = function (knex: knex.Knex, Promise: any) {
     t.string("community", 200).notNullable();
     t.string("region", 200).notNullable();
     t.boolean("is_active").notNullable().defaultTo(true);
+    t.integer("sort_order").notNullable().defaultTo(10);
   });
 };
 
