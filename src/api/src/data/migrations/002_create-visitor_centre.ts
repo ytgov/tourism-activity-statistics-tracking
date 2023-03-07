@@ -12,6 +12,7 @@ exports.up = async function (knex: knex.Knex, Promise: any) {
     t.integer("sort_order").notNullable().defaultTo(10);
   });
 
+  SET IDENTITY_INSERT ON
 
   let site_array = [
     {"site_id":1,"site_desc":"Whitehorse VIC","is_active_flg":"Yes","rec_create_date":"16-MAY-13","rec_create_user":0}

@@ -1,8 +1,9 @@
 import * as knex from "knex";
 
-exports.up = function (knex: knex.Knex, Promise: any) {
+exports.up = async function (knex: knex.Knex, Promise: any) {
   console.log("Created user table");
-  return knex.schema.createTable("users", function (t) {
+
+  await knex.schema.createTable("users", function (t) {
     t.string("email", 200).notNullable().primary();
     t.string("sub", 200).notNullable().unique();
     t.string("first_name", 100).notNullable();
@@ -14,6 +15,10 @@ exports.up = function (knex: knex.Knex, Promise: any) {
     t.string("roles", 1000).nullable();
     t.boolean("is_admin").notNullable().defaultTo(false);
   });
+
+  //insert fake legacy user with generic for data load of SITE_SITE_DAILY_COUNT
+  
+
 };
 
 exports.down = function (knex: knex.Knex, Promise: any) {
