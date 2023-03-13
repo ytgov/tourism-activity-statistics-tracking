@@ -10,7 +10,7 @@
     </template>
 
     <v-row class="mt-5">
-      <v-col cols="6"></v-col>
+      <v-col cols="6">Origin</v-col>
       <v-col cols="3" class="text-body-1 text-center"> Daily Totals </v-col>
       <v-col cols="3" class="text-body-1 text-center"> Weekly Totals </v-col>
     </v-row>
@@ -63,7 +63,7 @@ export default {
       "Watson Lake",
       "Whitehorse",
     ],
-    site: "Whitehorse",
+    site: "Whitehorse VIC",
     date: "",
   }),
   mounted() {
