@@ -9,7 +9,7 @@ import { domain, client_id, audience } from "../../auth-config.json";
 // of the way that composables work.  So, the authStore loads in @/App.vue to
 // work around this issue.
 
-export const Auth0Plugin = createAuth0({
+export const AuthHelper = createAuth0({
   domain,
   clientId: client_id,
   authorizationParams: {

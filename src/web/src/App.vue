@@ -7,9 +7,6 @@
 
 <script lang="ts">
 import Notifications from "@/components/Notifications.vue";
-import { useApiStore } from "@/store/ApiStore";
-
-const api = useApiStore();
 
 export default {
   data: function () {

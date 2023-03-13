@@ -28,12 +28,6 @@
               <v-list-item-title style="font-size: 0.9rem !important">My profile</v-list-item-title>
             </v-list-item>
 
-            <v-list-item @click="blip">
-              <template v-slot:prepend>
-                <v-icon>mdi-information-outline</v-icon>
-              </template>
-              <v-list-item-title style="font-size: 0.9rem !important">Show API Message</v-list-item-title>
-            </v-list-item>
             <v-list-item to="/administration" v-if="isAdmin">
               <template v-slot:prepend>
                 <v-icon>mdi-cogs</v-icon>
@@ -59,7 +53,7 @@
   <v-main>
     <!-- Provides the application the proper gutter -->
     <!-- fill-height causes the main content to fill the entire page -->
-    <v-container fluid class="page-wrapper fill-height">
+    <v-container fluid class="page-wrapper">
       <router-view></router-view>
     </v-container>
   </v-main>
@@ -77,32 +71,25 @@ import { useUserStore } from "@/store/UserStore";
 import { useAdminStore } from "@/modules/administration/store";
 import { useNotificationStore } from "@/store/NotificationStore";
 import { mapState, mapActions, mapWritableState } from "pinia";
-import { useAuth0 } from "@auth0/auth0-vue";
 
 export default {
   name: "Default",
-  data: () => ({
-    showOverlay: true,
-  }),
+  data() {
+    return {
+      isAuthenticated: this.$auth.isAuthenticated,
+      authUser: this.$auth.user,
+      showOverlay: true,
+    };
+  },
   computed: {
     ...mapWritableState(useNotificationStore, ["showNotification"]),
     ...mapState(useUserStore, ["user", "isAdmin"]),
-
-    isAuthenticated() {
-      const auth = useAuth0();
-      return auth.isAuthenticated;
-    },
-    authUser() {
-      const auth = useAuth0();
-      return auth.user;
-    },
 
     title() {
       return "Visitor Analytics";
     },
     username() {
-      const auth = useAuth0();
-      return auth.user.value.name;
+      return this.authUser.name;
     },
     returnTo: function () {
       return window.location.origin;
@@ -118,12 +105,9 @@ export default {
   methods: {
     ...mapActions(useUserStore, ["initialize", "toggleAdmin"]),
     ...mapActions(useAdminStore, { initializeAdmin: "initialize" }),
-    blip: function () {
-      this.showNotification = true;
-    },
+
     logoutClick() {
-      const auth = useAuth0();
-      auth.logout({ logoutParams: { returnTo: this.returnTo } });
+      this.$auth.logout({ logoutParams: { returnTo: window.location.origin } });
     },
   },
 };
