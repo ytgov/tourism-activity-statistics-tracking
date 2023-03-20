@@ -41,6 +41,7 @@ function cleanForCreate(user: User): any {
     create_date: user.create_date,
     roles: user.roles,
     is_admin: user.is_admin,
+    primary_site: user.primary_site,
   };
 }
 
@@ -53,5 +54,6 @@ function cleanForUpdate(user: User): any {
     ynet_id: user.ynet_id,
     directory_id: user.directory_id,
     is_admin: user.is_admin,
+    primary_site: user.primary_site,
   };
 }

@@ -8,6 +8,7 @@ export interface User {
   directory_id: string;
   is_admin: Boolean;
   create_date: Date;
+  primary_site?: number;
 
   department_admin_for?: string[];
   roles?: string | string[];

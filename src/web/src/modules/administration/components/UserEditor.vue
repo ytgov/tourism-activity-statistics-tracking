@@ -8,6 +8,8 @@
       <v-card-text>
         <v-row>
           <v-col cols="12" md="6">
+            <h3 class="mb-3">User Details</h3>
+
             <v-text-field
               label="Name"
               v-model="selectedUser.display_name"
@@ -30,7 +32,18 @@
           </v-col>
           <v-divider vertical thickness="1"></v-divider>
           <v-col cols="12" md="6">
-            <h3>Permissions</h3>
+            <h3 class="mb-3">Permissions</h3>
+
+            <v-autocomplete
+              label="Primary site"
+              v-model="selectedUser.primary_site"
+              variant="outlined"
+              density="comfortable"
+              :items="centres"
+              item-title="name"
+              clearable
+              item-value="id">
+            </v-autocomplete>
 
             <v-autocomplete
               v-model="selectedUser.scopes"
@@ -39,6 +52,7 @@
               variant="outlined"
               chips
               clearable
+              class="tall-input"
               density="comfortable"></v-autocomplete>
           </v-col>
         </v-row>
@@ -75,4 +89,8 @@ export default {
   },
 };
 </script>
-<style scoped></style>
+<style>
+.v-input.tall-input .v-input__control {
+  min-height: 200px !important;
+}
+</style>

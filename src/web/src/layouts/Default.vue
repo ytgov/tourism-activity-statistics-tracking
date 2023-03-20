@@ -10,10 +10,6 @@
 
         <v-divider class="mr-5" vertical inset></v-divider>
         <span style="font-size: 0.9rem"> {{ username }} </span>
-        <span class="pl-3" @click="toggleAdmin()">
-          <v-chip v-if="isAdmin" color="yg_moss"> Admin </v-chip>
-          <v-chip v-else color="yg_twilight"> User </v-chip>
-        </span>
 
         <v-menu offset-y>
           <template v-slot:activator="{ props }">
@@ -103,7 +99,7 @@ export default {
     this.showOverlay = false;
   },
   methods: {
-    ...mapActions(useUserStore, ["initialize", "toggleAdmin"]),
+    ...mapActions(useUserStore, ["initialize"]),
     ...mapActions(useAdminStore, { initializeAdmin: "initialize" }),
 
     logoutClick() {

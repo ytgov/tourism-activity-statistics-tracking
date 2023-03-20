@@ -47,7 +47,7 @@ userRouter.put(
   ReturnValidationErrors,
   async (req: Request, res: Response) => {
     let { email } = req.params;
-    let { roles, status, is_admin, scopes } = req.body;
+    let { roles, status, is_admin, scopes, primary_site } = req.body;
 
     let existing = await db.getByEmail(email);
 
@@ -55,6 +55,7 @@ userRouter.put(
       existing.status = status;
       existing.roles = roles;
       existing.is_admin = is_admin;
+      existing.primary_site = primary_site;
 
       await db.update(email, existing);
       await permissionService.add(email, scopes);

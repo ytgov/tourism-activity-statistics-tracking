@@ -14,11 +14,10 @@ exports.up = async function (knex: knex.Knex, Promise: any) {
     t.dateTime("create_date").notNullable();
     t.string("roles", 1000).nullable();
     t.boolean("is_admin").notNullable().defaultTo(false);
+    t.integer("primary_site").nullable();
   });
 
   //insert fake legacy user with generic for data load of SITE_SITE_DAILY_COUNT
-  
-
 };
 
 exports.down = function (knex: knex.Knex, Promise: any) {

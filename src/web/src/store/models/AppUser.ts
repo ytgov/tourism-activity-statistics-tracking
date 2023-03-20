@@ -5,5 +5,6 @@ export interface AppUser {
   display_name: string;
   is_admin: Boolean;
 
+  primary_site?: number;
   scopes: string[];
 }
