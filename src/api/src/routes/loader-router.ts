@@ -35,36 +35,41 @@ loaderRouter.post("/readJson", async (req: Request, res: Response) => {
 //   }
 // });
 
-loaderRouter.post("/insertJsonStatSite", async (req: Request, res: Response) => {
-  if (!req.files?.file) {
-    res.status(500).json({ message: "No file found." });
-  } else {
-    try {
-      const result = loaderService.parseJsonFile(req.files?.file);
+// loaderRouter.post("/insertJsonStatSite", async (req: Request, res: Response) => {
+//   if (!req.files?.file) {
+//     res.status(500).json({ message: "No file found." });
+//   } else {
+//     try {
+//       const result = await loaderService.parseJsonFile(req.files?.file);
 
-      if (result.length > 0) {
-        await loaderService.insertParsedSiteData;
-      }
+//       console.log(result);
 
-      res.status(200).json({ data: result });
-    } catch (err) {
-      res.status(500).json({ message: err });
-    }
-  }
-});
+//       if (result.length > 0) {
+//         await loaderService.insertParsedSiteData(result);
+//       }
+
+//       res.status(200).json({ data: result });
+//     } catch (err) {
+//       res.status(500).json({ message: err });
+//     }
+//   }
+// });
 
 loaderRouter.post("/insertJsonStatSiteDailyCount", async (req: Request, res: Response) => {
   if (!req.files?.file) {
     res.status(500).json({ message: "No file found." });
   } else {
     try {
-      const result = loaderService.parseJsonFile(req.files?.file);
+      const result = await loaderService.parseJsonFile(req.files?.file);
 
+      console.log(`Atempting to load ${result.length} entries`);
       if (result.length > 0) {
-        await loaderService.insertParsedSiteDailyData(result);
+        const loaded = await loaderService.insertParsedSiteDailyData(result);
+        console.log(`Loaded ${loaded} entries`);
+        res.status(200).json({ message: `Loaded ${loaded}/${result.length} entries` });
+      } else {
+        res.status(200).json({ message: `Nothing to load` });
       }
-
-      res.status(200).json({ data: result });
     } catch (err) {
       res.status(500).json({ message: err });
     }

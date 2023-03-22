@@ -5,7 +5,7 @@ import helmet from "helmet";
 import fileUpload from "express-fileupload";
 import { API_PORT, FRONTEND_URL, APPLICATION_NAME } from "./config";
 import { doHealthCheck } from "./utils/health-check";
-import { userRouter, permissionRouter, visitorCentreRouter, loaderRouter } from "./routes";
+import { userRouter, permissionRouter, permissionRouter2, visitorCentreRouter, loaderRouter } from "./routes";
 import { CreateMigrationRoutes } from "./data";
 import { RequiresData } from "./middleware";
 import axios from "axios";
@@ -55,6 +55,7 @@ app.get("/api/healthCheck", (req: Request, res: Response) => {
 app.use("/api/visitor-centre", visitorCentreRouter);
 app.use("/api/user", userRouter);
 app.use("/api/permission", permissionRouter);
+app.use("/api/permissions2", permissionRouter2);
 app.use("/api/loader", loaderRouter);
 
 axios.get("http://localhost:3000/api/permission/test").then(res => {});

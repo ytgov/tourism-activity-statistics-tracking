@@ -27,8 +27,8 @@ exports.up = async function (knex: knex.Knex, Promise: any) {
     t.increments("site_daily_count_id").primary();
     t.integer("site_id").notNullable();
     t.dateTime("count_date").notNullable();
-    t.integer("total_count").notNullable();
-    t.boolean("is_non_tour_fig").notNullable().defaultTo(false);
+    t.float("total_count").notNullable();
+    t.boolean("is_non_tour_flg").notNullable().defaultTo(false);
     t.boolean("is_tour_flg").notNullable().defaultTo(false);
     t.dateTime("rec_create_date").nullable();
     t.integer("rec_create_user").nullable();

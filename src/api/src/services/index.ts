@@ -3,6 +3,7 @@ export * from "./directory-service";
 export * from "./generic-service";
 export * from "./user-service";
 export * from "./permission-service";
+export * from "./permission-service2";
 export * from "./visitor-centre-service";
 export * from "./loader-service";
 
