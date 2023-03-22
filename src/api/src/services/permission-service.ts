@@ -23,7 +23,24 @@ export class PermissionService extends GenericService {
     });
   }
 
-  async removePermission(id: string | number): Promise<any> {
+  async removePermission(
+    user: string,
+    params?: {
+      name?: string;
+      operation?: string;
+      relevant_entity?: string;
+      relevant_id?: string | number;
+      relevant_entity_type?: string;
+    }
+  ): Promise<any> {
+    return sqldb
+      .withSchema(SCHEMA)
+      .from(TABLE)
+      .where({ user, ...params })
+      .del();
+  }
+
+  async removePermissionById(id: string | number): Promise<any> {
     return sqldb.withSchema(SCHEMA).from(TABLE).where({ id }).del();
   }
 
