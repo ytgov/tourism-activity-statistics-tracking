@@ -12,20 +12,66 @@ exports.up = async function (knex: knex.Knex, Promise: any) {
     t.integer("sort_order").notNullable().defaultTo(10);
   });
 
-  SET IDENTITY_INSERT ON
-
   let site_array = [
-    {"site_id":1,"site_desc":"Whitehorse VIC","is_active_flg":"Yes","rec_create_date":"16-MAY-13","rec_create_user":0}
-    ,{"site_id":3,"site_desc":"Haines Junction VIC","is_active_flg":"Yes","rec_create_date":"16-MAY-13","rec_create_user":0}
-    ,{"site_id":4,"site_desc":"Beaver Creek VIC","is_active_flg":"Yes","rec_create_date":"16-MAY-13","rec_create_user":0}
-    ,{"site_id":5,"site_desc":"Old Crow VIC","is_active_flg":"Yes","rec_create_date":"16-MAY-13","rec_create_user":0}
-    ,{"site_id":6,"site_desc":"Carcross VIC","is_active_flg":"Yes","rec_create_date":"16-MAY-13","rec_create_user":0}
-    ,{"site_id":7,"site_desc":"Airport","is_active_flg":"Yes","rec_create_date":"16-MAY-13","rec_create_user":0}
-    ,{"site_id":8,"site_desc":"Dawson VIC","is_active_flg":"Yes","rec_create_date":"16-MAY-13","rec_create_user":0}
-    ,{"site_id":2,"site_desc":"Watson Lake VIC","is_active_flg":"Yes","rec_create_date":"16-MAY-13","rec_create_user":0}
-    ]
+    {
+      id: 1,
+      name: "Whitehorse VIC",
+      community: "Whitehorse",
+      region: "Yukon",
+      is_active: true
+    },
+    {
+      id: 3,
+      name: "Haines Junction VIC",
+      community: "Haines Junction",
+      region: "Yukon",
+      is_active: true
+    },
+    {
+      id: 4,
+      name: "Beaver Creek VIC",
+      community: "Beaver Creek",
+      region: "Yukon",
+      is_active: true
+    },
+    {
+      id: 5,
+      name: "Old Crow VIC",
+      community: "Old Crow",
+      region: "Yukon",
+      is_active: true
+    },
+    {
+      id: 6,
+      name: "Carcross VIC",
+      community: "Carcross",
+      region: "Yukon",
+      is_active: true
+    },
+    {
+      id: 7,
+      name: "Airport",
+      community: "Whitehorse",
+      region: "Yukon",
+      is_active: true
+    },
+    {
+      id: 8,
+      name: "Dawson VIC",
+      community: "Dawson",
+      region: "Yukon",
+      is_active: true
+    },
+    {
+      id: 2,
+      name: "Watson Lake VIC",
+      community: "Watson Lake",
+      region: "Yukon",
+      is_active: true
+    }
+  ];
 
-  return knex("visitor_center").insert(site_array)
+  return knex("visitor_centre").insert(site_array);
 };
 
 exports.down = function (knex: knex.Knex, Promise: any) {

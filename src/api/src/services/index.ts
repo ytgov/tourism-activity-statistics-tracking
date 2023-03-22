@@ -4,6 +4,7 @@ export * from "./generic-service";
 export * from "./user-service";
 export * from "./permission-service";
 export * from "./visitor-centre-service";
+export * from "./loader-service";
 
 export interface QueryStatement {
   field: string;
@@ -19,5 +20,5 @@ export interface SortStatement {
 
 export enum SortDirection {
   ASCENDING = "asc",
-  DESCENDING = "desc",
+  DESCENDING = "desc"
 }

@@ -11,7 +11,7 @@ switch (process.env.NODE_ENV) {
     path = `.env.production`;
     break;
   default:
-    path = `.env.development`;
+    path = `../../.env.development`;
 }
 
 dotenv.config({ path: path });
@@ -39,14 +39,14 @@ export const MAIL_CONFIG_DEV = {
   secure: false, // true for 465, false for other ports
   auth: {
     user: MAIL_USER,
-    pass: MAIL_PASS,
-  },
+    pass: MAIL_PASS
+  }
 };
 
 export const MAIL_CONFIG = {
   host: MAIL_HOST,
   port: MAIL_PORT,
-  secure: false, // true for 465, false for other ports
+  secure: false // true for 465, false for other ports
 };
 
 export const DB_CLIENT = process.env.DB_CLIENT || "mssql";
@@ -63,8 +63,8 @@ export const DB_CONFIG = {
     user: DB_USER,
     password: DB_PASS,
     database: DB_NAME,
-    port: parseInt(DB_PORT),
-  },
+    port: parseInt(DB_PORT)
+  }
 };
 
 export const AD_CLIENT_ID = process.env.AD_CLIENT_ID || "";
