@@ -2,74 +2,61 @@ import express, { Request, Response } from "express";
 import { param } from "express-validator";
 import _ from "lodash";
 import { RequiresData, ReturnValidationErrors } from "../middleware";
-import { PermissionService, VisitorCentreService } from "../services";
+import { PermissionService } from "../services";
 
 export const permissionRouter = express.Router();
 permissionRouter.use(RequiresData);
 
 const permissionService = new PermissionService();
-const centreService = new VisitorCentreService();
 
-permissionRouter.get("/", async (req: Request, res: Response) => {
-  let centres = await centreService.getAll({ is_active: true });
+permissionRouter.get("/:email", async (req: Request, res: Response) => {
+  await permissionService.getUserPermissions(req.params.email, req.body.data).then(value => {
+    res.status(200).send(value);
+  });
+});
 
-  //let scopes = ["Users.Manage", "VisitorCentres.Manage"]
-  let scopes = new Array<string>();
-  let operations = ["Write", "Manage"];
+permissionRouter.post("/add", async (req: Request, res: Response) => {
+  await permissionService.addPermission(
+    req.body.email,
+    req.body.scope,
+    req.body.operation,
+    req.body.relevant_entity_type,
+    req.body.relevant_id,
+    req.body.relevant_name
+  );
 
-  let names = centres.map((c) => c.name.replace(/\s/g, ""));
+  res.status(200).json({ message: "OK" });
+});
 
-  for (let name of names) {
-    for (let op of operations) {
-      scopes.push(`VIC.${name}.${op}`);
-    }
-  }
+permissionRouter.post("/remove", async (req: Request, res: Response) => {
+  await permissionService.removePermission(req.params.id);
 
-  res.json({ data: { scopes } });
+  res.status(200).json({ message: "OK" });
 });
 
 permissionRouter.get("/check", async (req: Request, res: Response) => {
-  await permissionService.check(req.body.email, req.body.scope).then((value) => {
-    res.status(200).send(value);
-  });
-});
-
-permissionRouter.get("/getPermissions", async (req: Request, res: Response) => {
-  await permissionService.aggregatePermissions(req.body.email).then((value) => {
-    res.status(200).send(value);
-  });
-});
-
-permissionRouter.get("/addPermissions", async (req: Request, res: Response) => {
-  await permissionService.add(req.body.email, req.body.operation).then((value) => {
-    res.status(200).send(value);
-  });
-});
-
-permissionRouter.get("/removePermissions", async (req: Request, res: Response) => {
-  await permissionService.remove(req.body.email, req.body.scope).then((value) => {
+  await permissionService.checkPermission(req.body.email, req.body.data).then(value => {
     res.status(200).send(value);
   });
 });
 
 permissionRouter.get("/test", async (req: Request, res: Response) => {
-  // await permissionService.add("maxrparker@gmail.com", [
-  //   "hi",
-  //   "hey",
-  //   "hello",
-  //   "alpha",
-  // ]);
-  // await permissionService.remove("maxrparker@gmail.com", ["Watson.lake.formb"]);
-  // await permissionService
-  //   .getPermissionMapByOperation("maxrparker@gmail.com")
-  //   .then((value) => {
-  //     console.log("permission map", value);
-  //   });
-  // await permissionService
-  //   .check("maxrparker@gmail.com", ["hello"])
-  //   .then((value) => {
-  //     console.log("access?", value);
-  //   });
-  // permissionService.getPermissionMapByScope("maxrparker@gmail.com");
-  //console.log(permissionService.decomposeScope("watson lake.formb.otherstuff"));
+  //   await permissionService.addPermission(
+  //     "maxrparker@gmail.com",
+  //     "VIC Whitehorse Manage",
+  //     "write",
+  //     "visitor-centre",
+  //     "3",
+  //     "Table"
+  //   );
+
+  console.log(await permissionService.getUserPermissions("maxrparker@gmail.com"));
+
+  //   console.log("Relevant ID:", await permissionService.getUserPermissions("maxrparker@gmail.com", { relevant_id: "2" }));
+  console.log(
+    "Relevant entity type:",
+    await permissionService.getUserPermissions("maxrparker@gmail.com", { relevant_entity_type: "Table" })
+  );
+
+  res.status(200).json({ message: "OK" });
 });
