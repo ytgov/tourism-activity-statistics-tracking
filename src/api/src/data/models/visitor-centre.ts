@@ -4,6 +4,8 @@ export interface VisitorCentre {
   community: string;
   region: string;
   is_active: Boolean;
+  
+  origins?: any[];
 }
 
 export interface VisitorCentreSeason {

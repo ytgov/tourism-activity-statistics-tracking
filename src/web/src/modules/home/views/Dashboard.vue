@@ -1,13 +1,8 @@
 <template>
-
-<p> SITE: {{ user.primary_site }}</p>
-
-{{ user.scopes }}
-<br>
-SITES:
-{{ dataEntrySites }}
-
-  <data-entry></data-entry>
+  <div v-if="dataEntrySites.length > 0">
+    <data-entry></data-entry>
+  </div>
+  <div v-else>You don't have any data entry sites defined.</div>
 </template>
 
 <script lang="ts">
@@ -18,7 +13,7 @@ export default {
   name: "Dashboard",
   components: { DataEntry },
   computed: {
-    ...mapState(useUserStore, ["user", "dataEntrySites"])
-  }
+    ...mapState(useUserStore, ["user", "dataEntrySites"]),
+  },
 };
 </script>

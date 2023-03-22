@@ -10,17 +10,12 @@ exports.up = async function (knex: knex.Knex, Promise: any) {
     t.boolean("is_active").notNullable().defaultTo(true);
   });
 
-  //seed some data in.
-  
-  /*
-  yukon
-  bc
-  canada
-  us
-  intl
-  unknown
-*/
-
+  await knex("visitor_origin").insert({ name: "Yukon", region: "Canada" });
+  await knex("visitor_origin").insert({ name: "British Columbia", region: "Canada" });
+  await knex("visitor_origin").insert({ name: "Other Canda", region: "Canada" });
+  await knex("visitor_origin").insert({ name: "American", region: "North America" });
+  await knex("visitor_origin").insert({ name: "International", region: "Global" });
+  await knex("visitor_origin").insert({ name: "Unknown", region: "Unknown" });
 };
 
 exports.down = function (knex: knex.Knex, Promise: any) {

@@ -1,65 +1,105 @@
 import { defineStore } from "pinia";
-
+import moment from "moment";
 import { useNotificationStore } from "@/store/NotificationStore";
 import { useApiStore } from "@/store/ApiStore";
-import { PROFILE_URL, USERS_URL } from "@/urls";
+import { VISITORCENTRE_URL } from "@/urls";
 
 let m = useNotificationStore();
 
-interface AdminState {
-  users: Array<AppUser>;
-  selectedUser: AppUser | undefined;
-  isLoading: Boolean;
+interface CentreState {
+  selectedSite: VisitorCentre | undefined;
+  selectedDate: any;
+  //dateOptions: string[];
+  siteToSelect: number;
+  manageSites: VisitorCentre[];
 }
 
-export const useAdminStore = defineStore("admin", {
-  state: (): AdminState => ({
-    users: [],
-    isLoading: false,
-    selectedUser: undefined,
+export const useCentreStore = defineStore("centre", {
+  state: (): CentreState => ({
+    selectedSite: undefined,
+    selectedDate: makeDateOptions()[0],
+    //dateOptions: makeDateOptions(),
+    siteToSelect: 0,
+    manageSites: new Array<VisitorCentre>(),
   }),
   getters: {
-    userCount(state) {
-      return state.users.length;
+    dateOptions() {
+      if (this.selectedSite) {
+        let site = this.selectedSite as any;
+        return site.days;
+      }
+      return [];
     },
   },
   actions: {
-    async getAllUsers() {
-      this.isLoading = true;
-      let api = useApiStore();
-      await api
-        .secureCall("get", USERS_URL)
-        .then((resp) => {
-          this.users = resp.data;
-        })
-        .finally(() => {
-          this.isLoading = false;
-        });
+    selectSite(user: any) {
+      this.selectedSite = user;
     },
-    async getRoles() {
-      console.log("getting roles");
-
-      let api = useApiStore();
-      api.secureCall("get", PROFILE_URL);
+    selectSiteById(id: number) {
+      this.siteToSelect = id;
     },
-    selectUser(user: any) {
-      this.selectedUser = user;
-    },
-    unselectUser() {
-      this.selectedUser = undefined;
+    unselectSite() {
+      this.selectedSite = undefined;
     },
     async save() {
-      //save selectedUser to API
+      const api = useApiStore();
 
-      m.notify("User saved");
-      this.getAllUsers();
-    }
+      api
+        .secureCall("put", `${VISITORCENTRE_URL}/record-stats`, {
+          date: this.selectedDate,
+          site: this.selectedSite,
+          recorded_at: moment().utc(true).toDate(),
+        })
+        .then((resp) => {
+          this.selectedSite = resp.data;
+          let currentDate = this.selectedDate.date;
+          let day = resp.data.days.filter((f: any) => f.date == currentDate)[0];
+          this.selectedDate = day;
+        });
+
+      m.notify({ variant: "success", text: "Saved" });
+    },
+
+    add(originName: string, date: string, amount: number) {
+      if (this.selectedSite) {
+        let origin = this.selectedSite.origins.filter((o) => o.name == originName)[0];
+
+        origin;
+      }
+    },
+
+    async loadDailyStats(id: number) {
+      const api = useApiStore();
+
+      await api.secureCall("get", `${VISITORCENTRE_URL}/${id}/stats`).then((resp) => {
+        const index = this.manageSites.map((s) => s.id).indexOf(id);
+        if (index !== -1) {
+          this.manageSites.splice(index, 1, resp.data);
+        } else this.manageSites.push(resp.data);
+      });
+    },
   },
 });
 
-export interface AppUser {
-  email: string;
-  first_name: string;
-  last_name: string;
-  display_name: string;
+function makeDateOptions(): string[] {
+  let date = moment();
+  let options = [date.format("YYYY-MM-DD")];
+
+  for (let i = 0; i < 11; i++) {
+    options.push(date.add(-1, "days").format("YYYY-MM-DD"));
+  }
+
+  return options;
+}
+
+export interface VisitorCentre {
+  id: number;
+  name: string;
+  origins: VisitorOrigin[];
+}
+
+export interface VisitorOrigin {
+  name: string;
+  dailyTotal: number;
+  weeklyTotal: number;
 }
