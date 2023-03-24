@@ -44,6 +44,7 @@ import { mapActions, mapState } from "pinia";
 import { cloneDeep } from "lodash";
 import { useAdminStore } from "../store";
 import UserEditor from "../components/UserEditor.vue";
+import { UserScope } from "@/store/models";
 
 export default {
   components: { UserEditor },
@@ -86,7 +87,24 @@ export default {
       await this.getAllUsers();
     },
     rowClick(event: Event, thing: any) {
-      this.selectUser(cloneDeep(thing.item.raw));
+      let editUser = cloneDeep(thing.item.raw);
+
+      let inputScopes = editUser.scopes
+        .map((s: string | UserScope) => (typeof s == "string" ? s : s.name))
+        .filter((s: string) => {
+          return s.startsWith("VIC.INPUT_");
+        });
+
+      let manageScopes = editUser.scopes
+        .map((s: string | UserScope) => (typeof s == "string" ? s : s.name))
+        .filter((s: string) => {
+          return s.startsWith("VIC.MANAGE_");
+        });
+
+      editUser.inputSites = inputScopes.map((s: string) => parseInt(s.replace("VIC.INPUT_", "")));
+      editUser.manageSites = manageScopes.map((s: string) => parseInt(s.replace("VIC.MANAGE_", "")));
+
+      this.selectUser(editUser);
     },
   },
 };

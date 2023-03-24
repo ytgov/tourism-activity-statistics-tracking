@@ -5,6 +5,7 @@ import { useNotificationStore } from "@/store/NotificationStore";
 import { useApiStore } from "@/store/ApiStore";
 import { PERMISSION_URL, PROFILE_URL } from "@/urls";
 import { useCentreStore } from "@/modules/centre/store";
+import { UserScope } from "./models";
 
 let m = useNotificationStore();
 let c = useCentreStore();
@@ -23,7 +24,6 @@ export const useUserStore = defineStore("user", {
       primary_site: -1,
     },
     permissions: [],
-    myCentres: [],
   }),
   getters: {
     userRoles(state) {
@@ -34,29 +34,15 @@ export const useUserStore = defineStore("user", {
     },
     dataEntrySites(state) {
       if (state.user && state.user.scopes) {
-        return [
-          {
-            id: 1,
-            name: "Whitehorse VIC",
-            origins: [
-              { name: "Yukon", dailyTotal: 0, weeklyTotal: 0, delta: 0 },
-              { name: "British Columbia", dailyTotal: 0, weeklyTotal: 0, delta: 0 },
-              { name: "Other Canada", dailyTotal: 0, weeklyTotal: 0, delta: 0 },
-              { name: "American", dailyTotal: 0, weeklyTotal: 0, delta: 0 },
-              { name: "International", dailyTotal: 0, weeklyTotal: 0, delta: 0 },
-              { name: "Unknown", dailyTotal: 0, weeklyTotal: 0, delta: 0 },
-            ],
-          },
-          {
-            id: 4,
-            name: "Carcross VIC",
-            origins: [
-              { name: "Yukon", dailyTotal: 0, weeklyTotal: 0, delta: 0 },
-              { name: "British Columbia", dailyTotal: 0, weeklyTotal: 0, delta: 0 },
-              { name: "Other Canada", dailyTotal: 0, weeklyTotal: 0, delta: 0 },
-            ],
-          },
-        ];
+        console.log("DES")
+
+        let inputScopes = state.user.scopes
+          .map((s: string | UserScope) => (typeof s == "string" ? s : s.name))
+          .filter((s: string) => {
+            return s.startsWith("VIC.INPUT_");
+          });
+
+        return inputScopes.map((s: string) => parseInt(s.replace("VIC.INPUT_", "")));
       }
       return [];
     },
@@ -75,9 +61,6 @@ export const useUserStore = defineStore("user", {
       await api.secureCall("get", PROFILE_URL).then((resp) => {
         this.user = resp.data;
 
-        if (this.user.primary_site) {
-          c.selectSiteById(this.user.primary_site);
-        }
       });
     },
     async loadPermissions() {
@@ -87,12 +70,6 @@ export const useUserStore = defineStore("user", {
       });
     },
 
-    async getRoles() {
-      console.log("getting roles");
-
-      let api = useApiStore();
-      api.secureCall("get", PROFILE_URL);
-    },
     canDo(action: string): Boolean {
       console.log("CURRENT USER CAN DO ", this.user.scopes);
 

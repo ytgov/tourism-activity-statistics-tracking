@@ -1,30 +1,35 @@
 import { sqldb } from "../data";
-import { GenericService } from "./generic-service";
+import { UserScope } from "../data/models";
 
 const SCHEMA = "";
 const TABLE = "permissions";
 
-export class PermissionService extends GenericService {
-  async addPermission(
-    user: string,
-    name: string,
-    operation: string,
-    entity: string,
-    id: string,
-    entityType: string
-  ): Promise<any> {
-    return sqldb.withSchema(SCHEMA).from(TABLE).insert({
-      name: name,
-      user: user,
-      operation: operation,
-      relevant_entity: entity,
-      relevant_id: id,
-      relevant_entity_type: entityType
-    });
+export class PermissionService {
+  async setPermissions(email: string, scopes: string[]): Promise<any> {
+    await sqldb(TABLE).where({ email }).delete();
+
+    for (let scope of scopes) {
+      let parts = scope.split(".");
+
+      if (parts[0] == "VIC") {
+        let p2 = parts[1].split("_");
+        let operation = p2[0];
+        let relevant_id = p2[1];
+
+        await sqldb.withSchema(SCHEMA).from(TABLE).insert({
+          name: scope,
+          email,
+          operation,
+          relevant_entity: "visitor_centre",
+          relevant_id,
+          relevant_entity_type: "visitor_centre",
+        });
+      }
+    }
   }
 
   async removePermission(
-    user: string,
+    email: string,
     params?: {
       name?: string;
       operation?: string;
@@ -36,7 +41,7 @@ export class PermissionService extends GenericService {
     return sqldb
       .withSchema(SCHEMA)
       .from(TABLE)
-      .where({ user, ...params })
+      .where({ email, ...params })
       .del();
   }
 
@@ -45,7 +50,7 @@ export class PermissionService extends GenericService {
   }
 
   async getUserPermissions(
-    user: string,
+    email: string,
     params?: {
       name?: string;
       operation?: string;
@@ -53,11 +58,8 @@ export class PermissionService extends GenericService {
       relevant_id?: string | number;
       relevant_entity_type?: string;
     }
-  ): Promise<any> {
-    return sqldb
-      .withSchema(SCHEMA)
-      .from(TABLE)
-      .where({ user, ...params });
+  ): Promise<UserScope[]> {
+    return sqldb<UserScope>(TABLE).withSchema(SCHEMA).where({ email });
   }
 
   async checkPermission(

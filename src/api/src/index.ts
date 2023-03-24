@@ -7,7 +7,6 @@ import { API_PORT, FRONTEND_URL, APPLICATION_NAME } from "./config";
 import { doHealthCheck } from "./utils/health-check";
 import { userRouter, permissionRouter, visitorCentreRouter, loaderRouter } from "./routes";
 import { CreateMigrationRoutes } from "./data";
-import { RequiresData } from "./middleware";
 import axios from "axios";
 
 //import { configureLocalAuthentication } from "./routes/auth-local";
@@ -42,8 +41,6 @@ app.use(
     credentials: true
   })
 );
-
-app.use(RequiresData);
 
 CreateMigrationRoutes(app);
 

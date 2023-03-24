@@ -71,6 +71,7 @@ export class VisitorCentreService {
           visitor_centre_id: id,
           visitor_origin_id: origin.id,
           user_email: email,
+          day: moment.utc(date).format("YYYY-MM-DD"),
           date: bumpDate,
           count: origin.delta,
         };

@@ -68,15 +68,28 @@ export const useCentreStore = defineStore("centre", {
       }
     },
 
-    async loadDailyStats(id: number) {
+    async loadDailyStats(ids: number[]) {
       const api = useApiStore();
 
-      await api.secureCall("get", `${VISITORCENTRE_URL}/${id}/stats`).then((resp) => {
-        const index = this.manageSites.map((s) => s.id).indexOf(id);
-        if (index !== -1) {
-          this.manageSites.splice(index, 1, resp.data);
-        } else this.manageSites.push(resp.data);
-      });
+      this.manageSites = new Array<VisitorCentre>();
+
+      for (let id of ids) {
+        await api.secureCall("get", `${VISITORCENTRE_URL}/${id}/stats`).then((resp) => {
+          const index = this.manageSites.map((s) => s.id).indexOf(id);
+          if (index !== -1) {
+            this.manageSites.splice(index, 1, resp.data);
+          } else this.manageSites.push(resp.data);
+        });
+      }
+    },
+    selectFirstToManage() {
+      if (this.manageSites && this.manageSites.length > 0) {
+        this.selectedSite = this.manageSites[0];
+
+        if (this.selectedSite && this.selectedSite.days) {
+          this.selectedDate = this.selectedSite.days[0];
+        }
+      }
     },
   },
 });
@@ -96,6 +109,8 @@ export interface VisitorCentre {
   id: number;
   name: string;
   origins: VisitorOrigin[];
+
+  days?: any[];
 }
 
 export interface VisitorOrigin {

@@ -1,12 +1,11 @@
 import express, { Request, Response } from "express";
 import { param } from "express-validator";
-import { RequiresData, ReturnValidationErrors } from "../middleware";
+import { ReturnValidationErrors } from "../middleware";
 import { UserService, PermissionService } from "../services";
 import _ from "lodash";
 import { checkJwt, loadUser } from "../middleware/authz.middleware";
 
 export const userRouter = express.Router();
-userRouter.use(RequiresData);
 userRouter.use(checkJwt, loadUser);
 
 const permissionService = new PermissionService();
@@ -28,7 +27,7 @@ userRouter.get("/", async (req: Request, res: Response) => {
 
   for (let user of list) {
     user.display_name = `${user.first_name} ${user.last_name}`;
-    user.scopes = await permissionService.getUserPermissions(user.email);
+    user.scopes = (await permissionService.getUserPermissions(user.email)).map((s) => s.name);
 
     if (!user.roles) user.roles = [];
     else if (!Array.isArray(user.roles)) user.roles = [user.roles as string];
@@ -58,7 +57,7 @@ userRouter.put(
       existing.primary_site = primary_site;
 
       await db.update(email, existing);
-      //await permissionService.add(email, scopes);
+      await permissionService.setPermissions(email, scopes);
 
       return res.json({
         messages: [{ variant: "success", text: "User saved" }],

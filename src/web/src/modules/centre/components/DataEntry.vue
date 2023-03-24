@@ -2,8 +2,6 @@
   <h1 class="text-h5 mb-5">Daily Data Entry</h1>
 
   <BaseCard showHeader="t" heading="" class="pb-3">
-    {{ selectedDate }}
-
     <template v-slot:left>
       <v-select
         :items="manageSites"
@@ -26,7 +24,6 @@
         return-object
         hide-details
         :disabled="isDirty"
-        @update:modelValue="changed"
         style="max-width: 220px"></v-select>
     </template>
     {{ isDirty }}
@@ -44,8 +41,15 @@
           <div class="float-right">
             <v-btn variant="flat" color="green" icon="" class="mr-3" @click="plusOne(location)">+1</v-btn>
             <v-btn variant="flat" color="green" icon="" class="mr-10" @click="plusFive(location)">+5</v-btn>
-            <v-btn variant="flat" color="orange" icon="" class="mr-3" @click="minusOne(location)"
-              :disabled="location.daily_total - 1 < 0">-1</v-btn>
+            <v-btn
+              variant="flat"
+              color="orange"
+              icon=""
+              class="mr-3"
+              @click="minusOne(location)"
+              :disabled="location.daily_total - 1 < 0"
+              >-1</v-btn
+            >
             <v-btn
               variant="flat"
               color="orange"
@@ -90,13 +94,17 @@ export default {
       this.isDirty = false;
     }, 2000);
 
-    for (let site of this.dataEntrySites) {
-      await this.loadDailyStats(site.id);
+    if (this.dataEntrySites.length > 0) {
+      await this.loadDailyStats(this.dataEntrySites);
+
+      this.selectFirstToManage();
     }
   },
   async beforeUnmount() {
-    console.log("DOING SAVE BEFORE UNMOUNT");
-    await this.save();
+    if (this.selectedDate && this.isDirty) {
+      console.log("DOING SAVE BEFORE UNMOUNT");
+      await this.save();
+    }
   },
   computed: {
     ...mapState(useUserStore, ["user", "dataEntrySites"]),
@@ -105,11 +113,12 @@ export default {
   },
   methods: {
     ...mapActions(useUserStore, ["canDo"]),
-    ...mapActions(useCentreStore, ["save", "loadDailyStats"]),
+    ...mapActions(useCentreStore, ["save", "loadDailyStats", "selectFirstToManage"]),
 
     changed() {
       console.log(this.selectedDate, this.selectedSite);
 
+      this.selectedDate = (this.selectedSite as any).days[0];
       //console.log("set DIRTY");
       //this.isDirty = true;
     },

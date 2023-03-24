@@ -8,12 +8,18 @@
 <script lang="ts">
 import DataEntry from "@/modules/centre/components/DataEntry.vue";
 import { useUserStore } from "@/store/UserStore";
-import { mapState } from "pinia";
+import { mapActions, mapState } from "pinia";
 export default {
   name: "Dashboard",
   components: { DataEntry },
   computed: {
     ...mapState(useUserStore, ["user", "dataEntrySites"]),
+  },
+  mounted() {
+    this.loadCurrentUser();
+  },
+  methods: {
+    ...mapActions(useUserStore, ["loadCurrentUser"]),
   },
 };
 </script>

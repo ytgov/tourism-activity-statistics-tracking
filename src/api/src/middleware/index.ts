@@ -1,14 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { validationResult } from "express-validator";
-import { Storage } from "../data";
 
-const store = new Storage();
-
-export async function ReturnValidationErrors(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
+export async function ReturnValidationErrors(req: Request, res: Response, next: NextFunction) {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
@@ -18,32 +11,10 @@ export async function ReturnValidationErrors(
   next();
 }
 
-export function RequiresAuthentication(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
+export function RequiresAuthentication(req: Request, res: Response, next: NextFunction) {
   if (req.user && req.user.isAuthentiated()) {
     return next();
   }
 
   res.redirect("/api/auth/login");
-}
-
-export async function RequiresData(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
-  //   let store = new Storage();
-
-  store
-    .ensureConnected()
-    .then((worked) => {
-      req.store = store;
-      next();
-    })
-    .catch((error) => {
-      res.status(500).send("Cant connect to database");
-    });
 }

@@ -12,6 +12,17 @@ export interface User {
 
   department_admin_for?: string[];
   roles?: string | string[];
-  scopes?: string[];
+  scopes?: string[] | UserScope[];
   display_name?: string;
+}
+
+export interface UserScope {
+  id: number;
+  email: string;
+  name: string;
+  operation: string;
+  relevant_entity: string;
+  relevant_id: number;
+  relevant_entity_type: string;
+  create_date: Date;
 }
