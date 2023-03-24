@@ -7,7 +7,8 @@ exports.up = function (knex: knex.Knex, Promise: any) {
     t.increments("id").primary();
     t.integer("visitor_centre_id").notNullable().references("visitor_centre.id");
     t.integer("visitor_origin_id").notNullable().references("visitor_origin.id");
-    t.string("user_email", 200).notNullable().references("users.email");
+    t.string("user_email", 200).notNullable();
+    t.string("day", 20).notNullable();
     t.timestamp("date").notNullable();
     t.integer("count").notNullable().defaultTo(1);
   });

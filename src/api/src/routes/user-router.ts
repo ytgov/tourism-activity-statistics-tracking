@@ -16,7 +16,7 @@ userRouter.get("/me", async (req: Request, res: Response) => {
   let me = await db.getByEmail(req.user.email);
 
   if (me) {
-    me.scopes = await permissionService.aggregatePermissions(req.user.email);
+    me.scopes = await permissionService.getUserPermissions(req.user.email);
     return res.json({ data: me });
   }
 
@@ -28,7 +28,7 @@ userRouter.get("/", async (req: Request, res: Response) => {
 
   for (let user of list) {
     user.display_name = `${user.first_name} ${user.last_name}`;
-    user.scopes = await permissionService.aggregatePermissions(user.email);
+    user.scopes = await permissionService.getUserPermissions(user.email);
 
     if (!user.roles) user.roles = [];
     else if (!Array.isArray(user.roles)) user.roles = [user.roles as string];
@@ -58,7 +58,7 @@ userRouter.put(
       existing.primary_site = primary_site;
 
       await db.update(email, existing);
-      await permissionService.add(email, scopes);
+      //await permissionService.add(email, scopes);
 
       return res.json({
         messages: [{ variant: "success", text: "User saved" }],
