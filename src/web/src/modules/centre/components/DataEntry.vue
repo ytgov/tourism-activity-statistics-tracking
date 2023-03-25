@@ -26,13 +26,12 @@
         :disabled="isDirty"
         style="max-width: 220px"></v-select>
     </template>
-    {{ isDirty }}
 
     <div v-if="selectedSite">
       <v-row class="mt-5">
         <v-col cols="6">Origin</v-col>
         <v-col cols="3" class="text-body-1 text-center"> Daily Totals </v-col>
-        <v-col cols="3" class="text-body-1 text-center"> Weekly Totals </v-col>
+        <!-- <v-col cols="3" class="text-body-1 text-center"> Weekly Totals </v-col> -->
       </v-row>
       <v-row v-for="(location, idx) of selectedDate.origins" :key="idx">
         <v-divider></v-divider>
@@ -65,9 +64,9 @@
         <v-col cols="3" class="text-h6 text-center pt-3">
           <div class="pt-3">{{ location.daily_total }}</div>
         </v-col>
-        <v-col cols="3" class="text-h6 text-center pt-3">
+        <!-- <v-col cols="3" class="text-h6 text-center pt-3">
           <div class="pt-3">{{ location.weekly_total }}</div>
-        </v-col>
+        </v-col> -->
       </v-row>
     </div>
     <div v-else>Not site selected</div>
@@ -96,13 +95,11 @@ export default {
 
     if (this.dataEntrySites.length > 0) {
       await this.loadDailyStats(this.dataEntrySites);
-
       this.selectFirstToManage();
     }
   },
   async beforeUnmount() {
     if (this.selectedDate && this.isDirty) {
-      console.log("DOING SAVE BEFORE UNMOUNT");
       await this.save();
     }
   },
@@ -116,11 +113,7 @@ export default {
     ...mapActions(useCentreStore, ["save", "loadDailyStats", "selectFirstToManage"]),
 
     changed() {
-      console.log(this.selectedDate, this.selectedSite);
-
       this.selectedDate = (this.selectedSite as any).days[0];
-      //console.log("set DIRTY");
-      //this.isDirty = true;
     },
 
     plusOne(location: any) {

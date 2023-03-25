@@ -1,6 +1,4 @@
 import { defineStore } from "pinia";
-import { uniq } from "lodash";
-
 import { useNotificationStore } from "@/store/NotificationStore";
 import { useApiStore } from "@/store/ApiStore";
 import { PERMISSION_URL, PROFILE_URL } from "@/urls";
@@ -34,8 +32,6 @@ export const useUserStore = defineStore("user", {
     },
     dataEntrySites(state) {
       if (state.user && state.user.scopes) {
-        console.log("DES")
-
         let inputScopes = state.user.scopes
           .map((s: string | UserScope) => (typeof s == "string" ? s : s.name))
           .filter((s: string) => {
@@ -60,7 +56,6 @@ export const useUserStore = defineStore("user", {
       let api = useApiStore();
       await api.secureCall("get", PROFILE_URL).then((resp) => {
         this.user = resp.data;
-
       });
     },
     async loadPermissions() {
