@@ -12,6 +12,8 @@ interface CentreState {
   //dateOptions: string[];
   siteToSelect: number;
   manageSites: VisitorCentre[];
+  reportToken: string;
+  metabaseUrl: string;
 }
 
 export const useCentreStore = defineStore("centre", {
@@ -21,6 +23,8 @@ export const useCentreStore = defineStore("centre", {
     //dateOptions: makeDateOptions(),
     siteToSelect: 0,
     manageSites: new Array<VisitorCentre>(),
+    reportToken: "",
+    metabaseUrl: "",
   }),
   getters: {
     dateOptions() {
@@ -32,6 +36,10 @@ export const useCentreStore = defineStore("centre", {
     },
   },
   actions: {
+    async initialize() {
+      console.log("Initialized Centre store.");
+      await this.loadReportToken();
+    },
     selectSite(user: any) {
       this.selectedSite = user;
     },
@@ -90,6 +98,14 @@ export const useCentreStore = defineStore("centre", {
           this.selectedDate = this.selectedSite.days[0];
         }
       }
+    },
+    loadReportToken() {
+      const api = useApiStore();
+
+      api.secureCall("get", `${VISITORCENTRE_URL}/token`).then((resp) => {
+        this.reportToken = resp.data.token;
+        this.metabaseUrl = resp.data.metabase_url;
+      });
     },
   },
 });

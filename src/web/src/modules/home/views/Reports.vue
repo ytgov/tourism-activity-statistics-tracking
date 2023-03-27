@@ -1,7 +1,7 @@
 <template>
   <h1 class="text-h5 mb-5">Reports</h1>
 
-  <v-row>
+  <!--  <v-row>
     <v-col cols="7">
       <v-card class="mb-5">
         <v-card-text>
@@ -32,7 +32,9 @@
         <YearChart></YearChart>
       </v-card>
     </v-col>
-  </v-row>
+  </v-row> -->
+
+  <iframe :src="iframeUrl" frameborder="0" style="width: 100%" height="100%" allowtransparency></iframe>
 </template>
 
 <script lang="ts">
@@ -41,8 +43,23 @@ import DayOfWeekChart from "@/modules/charts/DayOfWeekChart.vue";
 import MonthChart from "@/modules/charts/MonthChart.vue";
 import YearChart from "@/modules/charts/YearChart.vue";
 
+import { mapState } from "pinia";
+import { useCentreStore } from "@/modules/centre/store";
+
 export default {
   name: "Dashboard",
   components: { TimeOfDayChart, DayOfWeekChart, MonthChart, YearChart },
+  data: () => ({
+    token: "",
+  }),
+  mounted() {},
+  computed: {
+    ...mapState(useCentreStore, ["reportToken", "metabaseUrl"]),
+
+    iframeUrl() {
+      return this.metabaseUrl + "/embed/dashboard/" + this.reportToken + "#bordered=true&titled=true";
+    },
+  },
+  methods: {},
 };
 </script>

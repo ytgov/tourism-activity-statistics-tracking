@@ -1,11 +1,11 @@
 version: "3"
 
 services:
-  sqldb: 
+  sqldb:
     build: db/.
-    ports: 
+    ports:
       - "1433:1433"
-    env_file: 
+    env_file:
       - db/sqlserver.env
       - db/sapassword.env
     environment:
@@ -15,5 +15,16 @@ services:
     volumes:
       - sqlsystem:/var/opt/mssql/
 
+  metabase:
+    image: metabase/metabase:latest
+    ports:
+      - "3100:3000"
+    environment:
+      - JAVA_TIMEZONE=America/Whitehorse
+      - MB_DB_FILE=/metabase-data/metabase.db
+    volumes: 
+      - metabase-db:/metabase-data
+
 volumes:
   sqlsystem:
+  metabase-db:

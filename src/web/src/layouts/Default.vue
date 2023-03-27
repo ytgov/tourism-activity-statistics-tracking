@@ -65,6 +65,7 @@
 <script lang="ts">
 import { useUserStore } from "@/store/UserStore";
 import { useAdminStore } from "@/modules/administration/store";
+import { useCentreStore } from "@/modules/centre/store";
 import { useNotificationStore } from "@/store/NotificationStore";
 import { mapState, mapActions, mapWritableState } from "pinia";
 
@@ -96,11 +97,13 @@ export default {
   async mounted() {
     await this.initialize();
     await this.initializeAdmin();
+    await this.initializeCentre();
     this.showOverlay = false;
   },
   methods: {
     ...mapActions(useUserStore, ["initialize"]),
     ...mapActions(useAdminStore, { initializeAdmin: "initialize" }),
+    ...mapActions(useCentreStore, { initializeCentre: "initialize" }),
 
     logoutClick() {
       this.$auth.logout({ logoutParams: { returnTo: window.location.origin } });

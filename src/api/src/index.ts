@@ -8,6 +8,7 @@ import { doHealthCheck } from "./utils/health-check";
 import { userRouter, permissionRouter, visitorCentreRouter, loaderRouter } from "./routes";
 import { CreateMigrationRoutes } from "./data";
 import axios from "axios";
+import { Scheduler } from "./utils/scheduler";
 
 //import { configureLocalAuthentication } from "./routes/auth-local";
 //runMigrations();
@@ -28,8 +29,8 @@ app.use(
       "object-src": ["'none'"],
       "script-src": ["'self'", "'unsafe-eval'"],
       "script-src-attr": ["'none'"],
-      "style-src": ["'self'", "https:", "'unsafe-inline'"]
-    }
+      "style-src": ["'self'", "https:", "'unsafe-inline'"],
+    },
   })
 );
 
@@ -38,11 +39,14 @@ app.use(
   cors({
     origin: FRONTEND_URL,
     optionsSuccessStatus: 200,
-    credentials: true
+    credentials: true,
   })
 );
 
 CreateMigrationRoutes(app);
+
+const scheduler = new Scheduler();
+
 
 app.get("/api/healthCheck", (req: Request, res: Response) => {
   // app.get("/api/healthCheck",  (req: Request, res: Response) => {
