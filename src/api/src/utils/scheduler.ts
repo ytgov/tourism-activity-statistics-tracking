@@ -5,7 +5,7 @@ import { ReminderService } from "../services";
 import { sqldb } from "../data";
 
 export class Scheduler {
-  readonly cronSchedule = "*/2 * * * *";
+  readonly cronSchedule = "*/30 * * * *";
 
   constructor() {
     const schedule = new RecurrenceRule();
@@ -28,7 +28,6 @@ export class Scheduler {
       .first();
 
     if (hasHappened && hasHappened.counter > 0) {
-      console.log("This has already ran");
       return;
     }
 
@@ -143,8 +142,6 @@ export class Scheduler {
             }
           }
         }
-      } else {
-        console.log("it's not my time");
       }
     }
 

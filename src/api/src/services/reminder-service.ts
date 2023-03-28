@@ -6,8 +6,6 @@ const emailService = new EmailService();
 
 export class ReminderService {
   async sendDataEntryReminders(centre: VisitorCentre): Promise<User[]> {
-    console.log("SEINDING ERMAIL REMINDERS For ", centre.name);
-
     let emails = await sqldb("permissions")
       .where({ name: `VIC.INPUT_${centre.id}` })
       .select("email");
