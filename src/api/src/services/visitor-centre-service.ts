@@ -73,6 +73,7 @@ export class VisitorCentreService {
           user_email: email,
           day: moment.utc(date).format("YYYY-MM-DD"),
           date: bumpDate,
+          recorded_at,
           count: origin.delta,
         };
 
@@ -103,5 +104,7 @@ function cleanForUpdate(i: any) {
     community: i.community,
     region: i.region,
     is_active: i.is_active,
+    reminders_at: (i.reminders_at || []).join(","),
+    reminders_when: i.reminders_when,
   };
 }

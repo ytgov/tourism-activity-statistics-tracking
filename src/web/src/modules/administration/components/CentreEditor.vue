@@ -34,7 +34,7 @@
           density="comfortable"></v-select>
         <v-select
           label="Send data entry reminder emails if"
-          v-model="selectedCentre.reminders_if"
+          v-model="selectedCentre.reminders_when"
           :items="reminderIfOptions"
           chips
           clearable
@@ -91,8 +91,7 @@ export default {
       "19:00",
     ],
     reminderIfOptions: [
-      "Always",
-      "If no data entered that day",
+      "If no data entered in day",
       "If no data entered in last 4 hours",
       "If no data entered in last 1 hour",
     ],

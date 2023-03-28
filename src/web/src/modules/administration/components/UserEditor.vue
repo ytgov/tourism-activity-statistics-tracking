@@ -34,7 +34,7 @@
               v-model="selectedUser.primary_site"
               variant="outlined"
               density="comfortable"
-              :items="centres"
+              :items="activeCentres"
               item-title="name"
               clearable
               item-value="id">
@@ -49,7 +49,7 @@
               v-model="selectedUser.inputSites"
               variant="outlined"
               density="comfortable"
-              :items="centres"
+              :items="activeCentres"
               item-title="name"
               clearable
               multiple
@@ -63,7 +63,7 @@
               v-model="selectedUser.manageSites"
               variant="outlined"
               density="comfortable"
-              :items="centres"
+              :items="activeCentres"
               item-title="name"
               clearable
               multiple
@@ -92,7 +92,7 @@ export default {
   name: "UserEditor",
   data: () => ({}),
   computed: {
-    ...mapState(useAdminStore, ["selectedUser", "centres"]),
+    ...mapState(useAdminStore, ["selectedUser", "activeCentres"]),
     ...mapState(useUserStore, ["permissions"]),
     visible() {
       return this.selectedUser ? true : false;

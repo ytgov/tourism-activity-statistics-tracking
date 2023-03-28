@@ -93,8 +93,8 @@ export default {
       this.isDirty = false;
     }, 2000);
 
-    if (this.dataEntrySites.length > 0) {
-      await this.loadDailyStats(this.dataEntrySites);
+    if (this.loadFor.length > 0) {
+      await this.loadDailyStats(this.loadFor);
       this.selectFirstToManage();
     }
   },
@@ -104,9 +104,15 @@ export default {
     }
   },
   computed: {
-    ...mapState(useUserStore, ["user", "dataEntrySites"]),
+    ...mapState(useUserStore, ["user"]),
     ...mapState(useCentreStore, ["dateOptions", "manageSites"]),
     ...mapWritableState(useCentreStore, ["selectedDate", "selectedSite"]),
+
+    loadFor() {
+      return this.user.scopes
+        .filter((s: any) => s.name.startsWith("VIC.INPUT"))
+        .map((s: any) => parseInt(s.name.replace("VIC.INPUT_", "")));
+    },
   },
   methods: {
     ...mapActions(useUserStore, ["canDo"]),

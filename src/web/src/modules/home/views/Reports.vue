@@ -57,7 +57,9 @@ export default {
     ...mapState(useCentreStore, ["reportToken", "metabaseUrl"]),
 
     iframeUrl() {
-      return this.metabaseUrl + "/embed/dashboard/" + this.reportToken + "#bordered=true&titled=true";
+      return (
+        this.metabaseUrl + "/embed/dashboard/" + this.reportToken + "#theme=transparent&bordered=false&titled=false"
+      );
     },
   },
   methods: {},

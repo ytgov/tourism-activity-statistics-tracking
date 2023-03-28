@@ -4,7 +4,9 @@ export interface VisitorCentre {
   community: string;
   region: string;
   is_active: Boolean;
-  
+  reminders_at: string[] | string;
+  reminders_when: string;
+
   origins?: any[];
 }
 

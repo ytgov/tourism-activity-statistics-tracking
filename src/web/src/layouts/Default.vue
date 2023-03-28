@@ -24,6 +24,13 @@
               <v-list-item-title style="font-size: 0.9rem !important">My profile</v-list-item-title>
             </v-list-item>
 
+            <v-list-item to="/reports" v-if="isAdmin">
+              <template v-slot:prepend>
+                <v-icon>mdi-view-dashboard</v-icon>
+              </template>
+              <v-list-item-title style="font-size: 0.9rem !important">Reports</v-list-item-title>
+            </v-list-item>
+
             <v-list-item to="/administration" v-if="isAdmin">
               <template v-slot:prepend>
                 <v-icon>mdi-cogs</v-icon>

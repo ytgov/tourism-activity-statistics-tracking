@@ -4,6 +4,7 @@ import { checkJwt, loadUser } from "../middleware/authz.middleware";
 import { ReturnValidationErrors } from "../middleware";
 import { VisitorCentreService } from "../services";
 import { sign } from "jsonwebtoken";
+import { METABASE_KEY, METABASE_URL, METABASE_ID } from "../config";
 
 export const visitorCentreRouter = express.Router();
 visitorCentreRouter.use(checkJwt);
@@ -12,21 +13,25 @@ visitorCentreRouter.use(loadUser);
 const db = new VisitorCentreService();
 
 visitorCentreRouter.get("/", async (req: Request, res: Response) => {
-  res.json({ data: await db.getAll() });
+  let list = await db.getAll();
+
+  for (let item of list) {
+    item.reminders_at = ((item.reminders_at || "") as string).split(",").filter((i) => i.length > 0);
+  }
+
+  res.json({ data: list });
 });
 
 visitorCentreRouter.get("/token", async (req: Request, res: Response) => {
-  const metabaseKey = "8d23d67d7c6df376190dfc1b31222e47c4f3454fcbe7bf9cd82ba53e050f0980";
-  const metabase_url = "http://localhost:3100";
-
   var payload = {
-    resource: { dashboard: 1 },
+    resource: { dashboard: parseInt(METABASE_ID) },
     params: {},
-    exp: Math.round(Date.now() / 1000) + 10 * 60, // 10 minute expiration
+    exp: Math.round(Date.now() / 1000) + 10 * 60, // 60 minute expiration
   };
-  let token = sign(payload, metabaseKey);
 
-  res.json({ data: { token, metabase_url } });
+  let token = sign(payload, METABASE_KEY);
+
+  res.json({ data: { token, metabase_url: METABASE_URL } });
 });
 
 visitorCentreRouter.get(

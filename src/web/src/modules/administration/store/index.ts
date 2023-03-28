@@ -28,6 +28,9 @@ export const useAdminStore = defineStore("admin", {
     userCount(state) {
       return state.users.length;
     },
+    activeCentres(state) {
+      return state.centres.filter((c) => c.is_active);
+    },
   },
   actions: {
     async initialize() {
