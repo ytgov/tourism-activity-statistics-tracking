@@ -93,7 +93,7 @@ export default {
       return "Visitor Analytics";
     },
     username() {
-      return this.authUser.name;
+      return (this.authUser as any).name;
     },
     returnTo: function () {
       return window.location.origin;
