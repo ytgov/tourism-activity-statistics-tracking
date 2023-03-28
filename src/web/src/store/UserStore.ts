@@ -1,10 +1,12 @@
 import { defineStore } from "pinia";
-
 import { useNotificationStore } from "@/store/NotificationStore";
 import { useApiStore } from "@/store/ApiStore";
 import { PERMISSION_URL, PROFILE_URL } from "@/urls";
+import { useCentreStore } from "@/modules/centre/store";
+import { UserScope } from "./models";
 
 let m = useNotificationStore();
+let c = useCentreStore();
 
 export const useUserStore = defineStore("user", {
   state: () => ({
@@ -16,17 +18,29 @@ export const useUserStore = defineStore("user", {
       roles: [""],
       ynet_id: "",
       is_admin: false,
-      scopes: [],
+      scopes: new Array<string>(),
+      primary_site: -1,
     },
     permissions: [],
-    myCentres: []
   }),
   getters: {
     userRoles(state) {
       return state.user.roles;
     },
     isAdmin(state) {
-      return state.user.roles.includes("System Administrator");
+      return state.user.is_admin;
+    },
+    dataEntrySites(state) {
+      if (state.user && state.user.scopes) {
+        let inputScopes = state.user.scopes
+          .map((s: string | UserScope) => (typeof s == "string" ? s : s.name))
+          .filter((s: string) => {
+            return s.startsWith("VIC.INPUT_");
+          });
+
+        return inputScopes.map((s: string) => parseInt(s.replace("VIC.INPUT_", "")));
+      }
+      return [];
     },
   },
   actions: {
@@ -38,28 +52,10 @@ export const useUserStore = defineStore("user", {
 
       console.log("Initialized user store");
     },
-    toggleAdmin() {
-      if (this.isAdmin) {
-        this.user.roles = this.user.roles.filter((role) => role !== "System Administrator");
-        this.user.roles.push("User");
-      } else {
-        this.user.roles = this.user.roles.filter((role) => role !== "User");
-        this.user.roles.push("System Administrator");
-      }
-
-      let message = {
-        status_code: 200,
-        text: "Changed role to " + this.user.roles,
-        icon: "mdi-information",
-        variant: "success",
-      };
-      m.notify(message);
-    },
     async loadCurrentUser() {
       let api = useApiStore();
       await api.secureCall("get", PROFILE_URL).then((resp) => {
         this.user = resp.data;
-        this.user.roles = [];
       });
     },
     async loadPermissions() {
@@ -69,17 +65,10 @@ export const useUserStore = defineStore("user", {
       });
     },
 
-    async getRoles() {
-      console.log("getting roles");
-
-      let api = useApiStore();
-      api.secureCall("get", PROFILE_URL);
-    },    
-    canDo(action:string): Boolean {
-      console.log("CURRENT USER CAN DO ", this.user.scopes)
+    canDo(action: string): Boolean {
+      console.log("CURRENT USER CAN DO ", this.user.scopes);
 
       return true;
-
-    }
+    },
   },
 });

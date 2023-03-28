@@ -21,11 +21,35 @@
           v-model="selectedCentre.region"
           variant="outlined"
           density="comfortable"></v-text-field>
-        <v-checkbox
-          label="Active?"
-          v-model="selectedCentre.is_active"
+
+        <v-select
+          label="Send data entry reminder emails at"
+          v-model="selectedCentre.reminders_at"
+          :items="reminderAtOptions"
+          multiple
+          chips
+          clearable
+          deletable-chips
           variant="outlined"
-          density="comfortable"></v-checkbox>
+          density="comfortable"></v-select>
+        <v-select
+          label="Send data entry reminder emails if"
+          v-model="selectedCentre.reminders_when"
+          :items="reminderIfOptions"
+          chips
+          clearable
+          deletable-chips
+          variant="outlined"
+          density="comfortable"></v-select>
+        <v-row>
+          <v-col
+            ><v-checkbox
+              label="Active?"
+              v-model="selectedCentre.is_active"
+              variant="outlined"
+              density="comfortable"></v-checkbox>
+          </v-col>
+        </v-row>
       </v-card-text>
       <v-card-actions class="mx-4 mb-2">
         <v-btn color="primary" variant="flat" @click="saveCentre()">Save</v-btn>
@@ -42,7 +66,36 @@ import { useAdminStore } from "../store";
 
 export default {
   name: "CentreEditor",
-  data: () => ({}),
+  data: () => ({
+    reminderAtOptions: [
+      "09:00",
+      "09:30",
+      "10:00",
+      "10:30",
+      "11:00",
+      "11:30",
+      "12:00",
+      "12:30",
+      "13:00",
+      "13:30",
+      "14:00",
+      "14:30",
+      "15:00",
+      "15:30",
+      "16:00",
+      "16:30",
+      "17:00",
+      "17:30",
+      "18:00",
+      "18:30",
+      "19:00",
+    ],
+    reminderIfOptions: [
+      "If no data entered in day",
+      "If no data entered in last 4 hours",
+      "If no data entered in last 1 hour",
+    ],
+  }),
   computed: {
     ...mapState(useAdminStore, ["selectedCentre"]),
     visible() {

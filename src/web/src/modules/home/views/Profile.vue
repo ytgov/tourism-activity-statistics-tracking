@@ -39,11 +39,6 @@
         </v-text-field>
       </v-col>
     </v-row>
-    <v-row>
-      <v-col>
-        <v-btn @click="getRoles()">Get Roles </v-btn>
-      </v-col>
-    </v-row>
   </div>
 </template>
 
@@ -65,8 +60,6 @@ export default {
       // return this.currentUser.roles;
     },
   },
-  methods: {
-    ...mapActions(useUserStore, ["getRoles"]),
-  },
+  methods: {},
 };
 </script>

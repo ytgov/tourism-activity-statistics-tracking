@@ -1,15 +1,65 @@
 import express, { Request, Response } from "express";
-import { param } from "express-validator";
+import { param, body } from "express-validator";
+import { checkJwt, loadUser } from "../middleware/authz.middleware";
 import { ReturnValidationErrors } from "../middleware";
 import { VisitorCentreService } from "../services";
+import { sign } from "jsonwebtoken";
+import { METABASE_KEY, METABASE_URL, METABASE_ID } from "../config";
 
 export const visitorCentreRouter = express.Router();
+visitorCentreRouter.use(checkJwt);
+visitorCentreRouter.use(loadUser);
 
 const db = new VisitorCentreService();
 
 visitorCentreRouter.get("/", async (req: Request, res: Response) => {
-  res.json({ data: await db.getAll() });
+  let list = await db.getAll();
+
+  for (let item of list) {
+    item.reminders_at = ((item.reminders_at || "") as string).split(",").filter((i) => i.length > 0);
+  }
+
+  res.json({ data: list });
 });
+
+visitorCentreRouter.get("/token", async (req: Request, res: Response) => {
+  var payload = {
+    resource: { dashboard: parseInt(METABASE_ID) },
+    params: {},
+    exp: Math.round(Date.now() / 1000) + 10 * 60, // 60 minute expiration
+  };
+
+  let token = sign(payload, METABASE_KEY);
+
+  res.json({ data: { token, metabase_url: METABASE_URL } });
+});
+
+visitorCentreRouter.get(
+  "/:id/stats",
+  [param("id").isNumeric().notEmpty()],
+  ReturnValidationErrors,
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
+    let vic = await db.getWithStats(parseInt(id), 10);
+    return res.json({ data: vic });
+  }
+);
+
+visitorCentreRouter.put(
+  "/record-stats",
+  [body("date").notEmpty(), body("site").notEmpty(), body("recorded_at").notEmpty()],
+  ReturnValidationErrors,
+  async (req: Request, res: Response) => {
+    let { date, site, recorded_at } = req.body;
+
+    if (site.id && date.date && date.origins) {
+      let vic = await db.updateAndGetStats(site.id, date.date, date.origins, req.user.email, recorded_at);
+
+      return res.json({ data: vic });
+    }
+    res.status(500).send();
+  }
+);
 
 visitorCentreRouter.put(
   "/:id",

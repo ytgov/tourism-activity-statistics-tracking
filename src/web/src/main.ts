@@ -1,30 +1,30 @@
 import { createApp } from "vue";
-import App from "./App.vue";
 import { createPinia } from "pinia";
 import { router } from "./routes";
-
-import { domain, client_id, audience } from "../auth-config.json";
+import { AuthHelper } from "@/plugins/auth";
 
 // Plugins
 import { registerPlugins } from "./plugins";
-import { createAuth0 } from "@auth0/auth0-vue";
+import { Auth0Plugin } from "@auth0/auth0-vue";
 
 const pinia = createPinia();
 
-const auth = createAuth0({
-  domain: domain,
-  clientId: client_id,
-  authorizationParams: {
-    audience,
-    redirect_uri: window.location.origin,
-  },
-});
-
+import App from "./App.vue";
 const app = createApp(App);
 app
   .use(pinia)
   .use(router)
-  .use(auth as any);
+  .use(AuthHelper as any);
+
+app.config.globalProperties.$auth = AuthHelper;
+
+declare module "@vue/runtime-core" {
+  interface ComponentCustomProperties {
+    $auth: Auth0Plugin;
+  }
+}
+
+export {}; // Important! See note.
 
 registerPlugins(app);
 

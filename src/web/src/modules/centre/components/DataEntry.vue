@@ -3,99 +3,140 @@
 
   <BaseCard showHeader="t" heading="" class="pb-3">
     <template v-slot:left>
-      <v-select :items="relevantLocations" label="Site" hide-details v-model="site" style="max-width: 220px"></v-select>
+      <v-select
+        :items="manageSites"
+        label="Site"
+        hide-details
+        v-model="selectedSite"
+        return-object
+        style="max-width: 220px"
+        item-title="name"
+        :disabled="isDirty"
+        @update:modelValue="changed"
+        item-value="id"></v-select>
     </template>
     <template v-slot:right>
-      <v-select v-model="date" label="Date" hide-details style="max-width: 220px"></v-select>
+      <v-select
+        v-model="selectedDate"
+        label="Date"
+        :items="dateOptions"
+        item-title="date"
+        return-object
+        hide-details
+        :disabled="isDirty"
+        style="max-width: 220px"></v-select>
     </template>
 
-    <v-row class="mt-5">
-      <v-col cols="6"></v-col>
-      <v-col cols="3" class="text-body-1 text-center"> Daily Totals </v-col>
-      <v-col cols="3" class="text-body-1 text-center"> Weekly Totals </v-col>
-    </v-row>
-    <v-row v-for="(location, idx) of origins" :key="idx">
-      <v-divider></v-divider>
-      <v-col cols="6">
-        <div class="text-h6 float-left pt-3">{{ location.name }}</div>
-        <div class="float-right">
-          <v-btn variant="flat" color="green" icon="" class="mr-3" @click="plusOne(location)">+1</v-btn>
-          <v-btn variant="flat" color="green" icon="" class="mr-10" @click="plusFive(location)">+5</v-btn>
-          <v-btn variant="flat" color="orange" icon="" class="mr-3" @click="minusOne(location)">-1</v-btn>
-          <v-btn variant="flat" color="orange" icon="" class="mr-0" @click="minusFive(location)">-5</v-btn>
-        </div>
-      </v-col>
+    <div v-if="selectedSite">
+      <v-row class="mt-5">
+        <v-col cols="6">Origin</v-col>
+        <v-col cols="3" class="text-body-1 text-center"> Daily Totals </v-col>
+        <!-- <v-col cols="3" class="text-body-1 text-center"> Weekly Totals </v-col> -->
+      </v-row>
+      <v-row v-for="(location, idx) of selectedDate.origins" :key="idx">
+        <v-divider></v-divider>
+        <v-col cols="6">
+          <div class="text-h6 float-left pt-3">{{ location.name }}</div>
+          <div class="float-right">
+            <v-btn variant="flat" color="green" icon="" class="mr-3" @click="plusOne(location)">+1</v-btn>
+            <v-btn variant="flat" color="green" icon="" class="mr-10" @click="plusFive(location)">+5</v-btn>
+            <v-btn
+              variant="flat"
+              color="orange"
+              icon=""
+              class="mr-3"
+              @click="minusOne(location)"
+              :disabled="location.daily_total - 1 < 0"
+              >-1</v-btn
+            >
+            <v-btn
+              variant="flat"
+              color="orange"
+              icon=""
+              class="mr-0"
+              @click="minusFive(location)"
+              :disabled="location.daily_total - 5 < 0"
+              >-5</v-btn
+            >
+          </div>
+        </v-col>
 
-      <v-col cols="3" class="text-h6 text-center pt-3">
-        <div class="pt-3">{{ location.dailyTotal }}</div>
-      </v-col>
-      <v-col cols="3" class="text-h6 text-center pt-3">
-        <div class="pt-3">{{ location.weeklyTotal }}</div>
-      </v-col>
-    </v-row>
+        <v-col cols="3" class="text-h6 text-center pt-3">
+          <div class="pt-3">{{ location.daily_total }}</div>
+        </v-col>
+        <!-- <v-col cols="3" class="text-h6 text-center pt-3">
+          <div class="pt-3">{{ location.weekly_total }}</div>
+        </v-col> -->
+      </v-row>
+    </div>
+    <div v-else>Not site selected</div>
   </BaseCard>
 </template>
 <script lang="ts">
+import { mapActions, mapState, mapWritableState } from "pinia";
 import { useUserStore } from "@/store/UserStore";
-import moment from "moment";
-import { mapActions, mapState } from "pinia";
+import { useCentreStore } from "../store";
 
 export default {
   name: "Dashboard",
   components: {},
   data: () => ({
     total: 0,
-    origins: [
-      { name: "Yukon", dailyTotal: 0, weeklyTotal: 0 },
-      { name: "British Columbia", dailyTotal: 0, weeklyTotal: 0 },
-      { name: "Other Canada", dailyTotal: 0, weeklyTotal: 0 },
-      { name: "American", dailyTotal: 0, weeklyTotal: 0 },
-      { name: "International", dailyTotal: 0, weeklyTotal: 0 },
-      { name: "Unknown", dailyTotal: 0, weeklyTotal: 0 },
-    ],
-    centres: [
-      "Airport",
-      "Beaver Creek",
-      "Carcross",
-      "Dawson City",
-      "Haines Junction",
-      "Old Crow",
-      "Watson Lake",
-      "Whitehorse",
-    ],
-    site: "Whitehorse",
-    date: "",
+    isDirty: false,
   }),
-  mounted() {
-    this.date = moment().format("YYYY-MM-DD");
+  async mounted() {
+    //if (this.user.primary_site && this.user.primary_site != -1) this.site = this.user.primary_site;
+    let r = window.setInterval(async () => {
+      if (!this.isDirty) return;
+
+      await this.save();
+      this.isDirty = false;
+    }, 2000);
+
+    if (this.loadFor.length > 0) {
+      await this.loadDailyStats(this.loadFor);
+      this.selectFirstToManage();
+    }
+  },
+  async beforeUnmount() {
+    if (this.selectedDate && this.isDirty) {
+      await this.save();
+    }
   },
   computed: {
     ...mapState(useUserStore, ["user"]),
-    relevantLocations() {
-      console.log("MY SCOPES", this.user.scopes.length);
+    ...mapState(useCentreStore, ["dateOptions", "manageSites"]),
+    ...mapWritableState(useCentreStore, ["selectedDate", "selectedSite"]),
 
-      console.log("CAN DO", this.canDo("User.Manage"));
-
-      return this.user.scopes;
+    loadFor() {
+      return this.user.scopes
+        .filter((s: any) => s.name.startsWith("VIC.INPUT"))
+        .map((s: any) => parseInt(s.name.replace("VIC.INPUT_", "")));
     },
   },
   methods: {
     ...mapActions(useUserStore, ["canDo"]),
+    ...mapActions(useCentreStore, ["save", "loadDailyStats", "selectFirstToManage"]),
+
+    changed() {
+      this.selectedDate = (this.selectedSite as any).days[0];
+    },
+
     plusOne(location: any) {
-      location.dailyTotal++;
-      location.weeklyTotal = location.dailyTotal * 5;
+      this.isDirty = true;
+      location.delta++;
     },
     plusFive(location: any) {
-      location.dailyTotal += 5;
-      location.weeklyTotal = location.dailyTotal * 5;
+      this.isDirty = true;
+      location.delta += 5;
     },
     minusOne(location: any) {
-      location.dailyTotal = Math.max(location.dailyTotal - 1, 0);
-      location.weeklyTotal = location.dailyTotal * 5;
+      this.isDirty = true;
+      location.delta--;
     },
     minusFive(location: any) {
-      location.dailyTotal = Math.max(location.dailyTotal - 5, 0);
-      location.weeklyTotal = location.dailyTotal * 5;
+      this.isDirty = true;
+      location.delta -= 5;
     },
   },
 };

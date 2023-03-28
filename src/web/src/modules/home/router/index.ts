@@ -15,6 +15,11 @@ const routes = [
         component: () => import("../views/Profile.vue"),
         beforeEnter: authGuard,
       },
+      {
+        path: "/reports",
+        component: () => import("../views/Reports.vue"),
+        beforeEnter: authGuard,
+      },
     ],
   },
 ];

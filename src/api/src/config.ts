@@ -70,3 +70,7 @@ export const DB_CONFIG = {
 export const AD_CLIENT_ID = process.env.AD_CLIENT_ID || "";
 export const AD_CLIENT_SECRET = process.env.AD_CLIENT_SECRET || "";
 export const AD_TENANT_ID = process.env.AD_TENANT_ID || "";
+
+export const METABASE_URL = process.env.METABASE_URL || "";
+export const METABASE_KEY = process.env.METABASE_KEY || "";
+export const METABASE_ID = process.env.METABASE_ID || "1";

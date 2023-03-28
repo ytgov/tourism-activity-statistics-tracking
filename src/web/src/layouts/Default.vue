@@ -10,10 +10,6 @@
 
         <v-divider class="mr-5" vertical inset></v-divider>
         <span style="font-size: 0.9rem"> {{ username }} </span>
-        <span class="pl-3" @click="toggleAdmin()">
-          <v-chip v-if="isAdmin" color="yg_moss"> Admin </v-chip>
-          <v-chip v-else color="yg_twilight"> User </v-chip>
-        </span>
 
         <v-menu offset-y>
           <template v-slot:activator="{ props }">
@@ -28,12 +24,13 @@
               <v-list-item-title style="font-size: 0.9rem !important">My profile</v-list-item-title>
             </v-list-item>
 
-            <v-list-item @click="blip">
+            <v-list-item to="/reports" v-if="isAdmin">
               <template v-slot:prepend>
-                <v-icon>mdi-information-outline</v-icon>
+                <v-icon>mdi-view-dashboard</v-icon>
               </template>
-              <v-list-item-title style="font-size: 0.9rem !important">Show API Message</v-list-item-title>
+              <v-list-item-title style="font-size: 0.9rem !important">Reports</v-list-item-title>
             </v-list-item>
+
             <v-list-item to="/administration" v-if="isAdmin">
               <template v-slot:prepend>
                 <v-icon>mdi-cogs</v-icon>
@@ -59,7 +56,7 @@
   <v-main>
     <!-- Provides the application the proper gutter -->
     <!-- fill-height causes the main content to fill the entire page -->
-    <v-container fluid class="page-wrapper fill-height">
+    <v-container fluid class="page-wrapper">
       <router-view></router-view>
     </v-container>
   </v-main>
@@ -75,34 +72,28 @@
 <script lang="ts">
 import { useUserStore } from "@/store/UserStore";
 import { useAdminStore } from "@/modules/administration/store";
+import { useCentreStore } from "@/modules/centre/store";
 import { useNotificationStore } from "@/store/NotificationStore";
 import { mapState, mapActions, mapWritableState } from "pinia";
-import { useAuth0 } from "@auth0/auth0-vue";
 
 export default {
   name: "Default",
-  data: () => ({
-    showOverlay: true,
-  }),
+  data() {
+    return {
+      isAuthenticated: this.$auth.isAuthenticated,
+      authUser: this.$auth.user,
+      showOverlay: true,
+    };
+  },
   computed: {
     ...mapWritableState(useNotificationStore, ["showNotification"]),
     ...mapState(useUserStore, ["user", "isAdmin"]),
-
-    isAuthenticated() {
-      const auth = useAuth0();
-      return auth.isAuthenticated;
-    },
-    authUser() {
-      const auth = useAuth0();
-      return auth.user;
-    },
 
     title() {
       return "Visitor Analytics";
     },
     username() {
-      const auth = useAuth0();
-      return auth.user.value.name;
+      return (this.authUser as any).name;
     },
     returnTo: function () {
       return window.location.origin;
@@ -113,17 +104,16 @@ export default {
   async mounted() {
     await this.initialize();
     await this.initializeAdmin();
+    await this.initializeCentre();
     this.showOverlay = false;
   },
   methods: {
-    ...mapActions(useUserStore, ["initialize", "toggleAdmin"]),
+    ...mapActions(useUserStore, ["initialize"]),
     ...mapActions(useAdminStore, { initializeAdmin: "initialize" }),
-    blip: function () {
-      this.showNotification = true;
-    },
+    ...mapActions(useCentreStore, { initializeCentre: "initialize" }),
+
     logoutClick() {
-      const auth = useAuth0();
-      auth.logout({ logoutParams: { returnTo: this.returnTo } });
+      this.$auth.logout({ logoutParams: { returnTo: window.location.origin } });
     },
   },
 };

@@ -8,6 +8,8 @@
       <v-card-text>
         <v-row>
           <v-col cols="12" md="6">
+            <h3 class="mb-3">User Details</h3>
+
             <v-text-field
               label="Name"
               v-model="selectedUser.display_name"
@@ -27,24 +29,53 @@
               v-model="selectedUser.is_admin"
               variant="outlined"
               density="comfortable"></v-checkbox>
+            <v-autocomplete
+              label="Primary site"
+              v-model="selectedUser.primary_site"
+              variant="outlined"
+              density="comfortable"
+              :items="activeCentres"
+              item-title="name"
+              clearable
+              item-value="id">
+            </v-autocomplete>
           </v-col>
           <v-divider vertical thickness="1"></v-divider>
           <v-col cols="12" md="6">
-            <h3>Permissions</h3>
+            <h3 class="mb-3">Permissions</h3>
 
             <v-autocomplete
-              v-model="selectedUser.scopes"
-              :items="permissions"
-              multiple
+              label="Sites for data input"
+              v-model="selectedUser.inputSites"
               variant="outlined"
-              chips
+              density="comfortable"
+              :items="activeCentres"
+              item-title="name"
               clearable
-              density="comfortable"></v-autocomplete>
+              multiple
+              chips
+              class="tall-input"
+              item-value="id">
+            </v-autocomplete>
+
+            <v-autocomplete
+              label="Sites to manage"
+              v-model="selectedUser.manageSites"
+              variant="outlined"
+              density="comfortable"
+              :items="activeCentres"
+              item-title="name"
+              clearable
+              multiple
+              chips
+              class="tall-input"
+              item-value="id">
+            </v-autocomplete>
           </v-col>
         </v-row>
       </v-card-text>
       <v-card-actions class="mx-4 mb-2">
-        <v-btn color="primary" variant="flat" @click="save()">Save</v-btn>
+        <v-btn color="primary" variant="flat" @click="saveClick()">Save</v-btn>
         <v-spacer></v-spacer>
         <v-btn color="yg_sun" variant="outlined" @click="close">Close</v-btn>
       </v-card-actions>
@@ -61,18 +92,35 @@ export default {
   name: "UserEditor",
   data: () => ({}),
   computed: {
-    ...mapState(useAdminStore, ["selectedUser", "centres"]),
+    ...mapState(useAdminStore, ["selectedUser", "activeCentres"]),
     ...mapState(useUserStore, ["permissions"]),
     visible() {
       return this.selectedUser ? true : false;
     },
   },
+  watch: {},
   methods: {
     ...mapActions(useAdminStore, ["unselectUser", "save"]),
     close() {
       this.unselectUser();
     },
+    setScopes() {
+      if (this.selectedUser) {
+        let inputScopes = (this.selectedUser.inputSites || []).map((i) => `VIC.INPUT_${i}`);
+        let manageScopes = (this.selectedUser.manageSites || []).map((i) => `VIC.MANAGE_${i}`);
+
+        this.selectedUser.scopes = [...inputScopes, ...manageScopes];
+      }
+    },
+    saveClick() {
+      this.setScopes();
+      this.save();
+    },
   },
 };
 </script>
-<style scoped></style>
+<style>
+.v-input.tall-input .v-input__control {
+  min-height: 100px !important;
+}
+</style>

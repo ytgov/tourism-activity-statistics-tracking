@@ -5,18 +5,17 @@
 </template>
 
 <script lang="ts">
-import { useAuth0 } from "@auth0/auth0-vue";
-
 export default {
   data: function () {
     return {};
   },
   methods: {
     login() {
-      const auth = useAuth0();
+      let target = window.location.pathname;
+      if (target == "/sign-in") target = "/dashboard";
 
-      auth.loginWithRedirect({
-        appState: { target: window.location.pathname },
+      this.$auth.loginWithRedirect({
+        appState: { target },
       });
     },
   },

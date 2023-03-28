@@ -39,15 +39,13 @@
 
 <script lang="ts">
 import LoginButton from "@/components/LoginButton.vue";
-import { useAuth0 } from "@auth0/auth0-vue";
 
 export default {
   name: "SignIn",
   components: { LoginButton },
   data: () => ({}),
   mounted() {
-    const auth = useAuth0();
-    if (auth.isAuthenticated.value) this.$router.push("/dashboard");
+    if (this.$auth.isAuthenticated.value) this.$router.push("/dashboard");
   },
 };
 </script>
