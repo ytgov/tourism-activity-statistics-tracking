@@ -3,7 +3,7 @@ import cors from "cors";
 import path from "path";
 import helmet from "helmet";
 import fileUpload from "express-fileupload";
-import { API_PORT, FRONTEND_URL, APPLICATION_NAME } from "./config";
+import { API_PORT, FRONTEND_URL, APPLICATION_NAME, AUTH0_DOMAIN } from "./config";
 import { doHealthCheck } from "./utils/health-check";
 import { userRouter, permissionRouter, visitorCentreRouter, loaderRouter } from "./routes";
 import { CreateMigrationRoutes } from "./data";
@@ -20,7 +20,7 @@ app.use(fileUpload());
 app.use(
   helmet.contentSecurityPolicy({
     directives: {
-      "default-src": ["'self'", "https://dev-0tc6bn14.eu.auth0.com"],
+      "default-src": ["'self'", `${AUTH0_DOMAIN}`],
       "base-uri": ["'self'"],
       "block-all-mixed-content": [],
       "font-src": ["'self'", "https:", "data:"],
@@ -46,7 +46,6 @@ app.use(
 CreateMigrationRoutes(app);
 
 const scheduler = new Scheduler();
-
 
 app.get("/api/healthCheck", (req: Request, res: Response) => {
   // app.get("/api/healthCheck",  (req: Request, res: Response) => {
