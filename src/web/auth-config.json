@@ -1,5 +1,12 @@
 {
-  "client_id": "Lq0tAnHaGVfu9PLNV8gwA0yocV86ZbZx",
-  "audience": "generic-production",
-  "domain": "https://yukon.eu.auth0.com"
+  "production": {
+    "client_id": "Lq0tAnHaGVfu9PLNV8gwA0yocV86ZbZx",
+    "audience": "generic-production",
+    "domain": "https://yukon.eu.auth0.com"
+  },
+  "development": {
+    "client_id": "0TREwfPzFD4enrD0HNLrH0wswkOhgHEt",
+    "audience": "testing",
+    "domain": "https://dev-0tc6bn14.eu.auth0.com"
+  }
 }
