@@ -30,9 +30,12 @@ visitorCentreRouter.get("/token", async (req: Request, res: Response) => {
       exp: Math.round(Date.now() / 1000) + 10 * 60, // 60 minute expiration
     };
 
-    let token = sign(payload, METABASE_KEY);
-
-    return res.json({ data: { token, metabase_url: METABASE_URL } });
+    try {
+      let token = sign(payload, METABASE_KEY);
+      return res.json({ data: { token, metabase_url: METABASE_URL } });
+    } catch (e) {
+      return res.json({ data: { token: "12345", metabase_url: "" } });
+    }
   }
 
   res.json({ data: { token: "12345", metabase_url: "" } });
