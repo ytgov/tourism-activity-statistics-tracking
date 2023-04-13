@@ -23,15 +23,19 @@ visitorCentreRouter.get("/", async (req: Request, res: Response) => {
 });
 
 visitorCentreRouter.get("/token", async (req: Request, res: Response) => {
-  var payload = {
-    resource: { dashboard: parseInt(METABASE_ID) },
-    params: {},
-    exp: Math.round(Date.now() / 1000) + 10 * 60, // 60 minute expiration
-  };
+  if (METABASE_ID && METABASE_KEY) {
+    var payload = {
+      resource: { dashboard: parseInt(METABASE_ID) },
+      params: {},
+      exp: Math.round(Date.now() / 1000) + 10 * 60, // 60 minute expiration
+    };
 
-  let token = sign(payload, METABASE_KEY);
+    let token = sign(payload, METABASE_KEY);
 
-  res.json({ data: { token, metabase_url: METABASE_URL } });
+    return res.json({ data: { token, metabase_url: METABASE_URL } });
+  }
+
+  res.json({ data: { token: "12345", metabase_url: "" } });
 });
 
 visitorCentreRouter.get(
