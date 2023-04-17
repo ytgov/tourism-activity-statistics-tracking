@@ -3,11 +3,10 @@ import cors from "cors";
 import path from "path";
 import helmet from "helmet";
 import fileUpload from "express-fileupload";
-import { API_PORT, FRONTEND_URL, APPLICATION_NAME, AUTH0_DOMAIN } from "./config";
+import { API_PORT, FRONTEND_URL, APPLICATION_NAME, AUTH0_DOMAIN, METABASE_URL } from "./config";
 import { doHealthCheck } from "./utils/health-check";
 import { userRouter, permissionRouter, visitorCentreRouter, loaderRouter } from "./routes";
 import { CreateMigrationRoutes } from "./data";
-import axios from "axios";
 import { Scheduler } from "./utils/scheduler";
 
 //import { configureLocalAuthentication } from "./routes/auth-local";
@@ -20,7 +19,7 @@ app.use(fileUpload());
 app.use(
   helmet.contentSecurityPolicy({
     directives: {
-      "default-src": ["'self'", `${AUTH0_DOMAIN}`],
+      "default-src": ["'self'", `${AUTH0_DOMAIN}`, `${METABASE_URL}`],
       "base-uri": ["'self'"],
       "block-all-mixed-content": [],
       "font-src": ["'self'", "https:", "data:"],
