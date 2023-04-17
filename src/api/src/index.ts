@@ -7,7 +7,6 @@ import { API_PORT, FRONTEND_URL, APPLICATION_NAME, AUTH0_DOMAIN, METABASE_URL } 
 import { doHealthCheck } from "./utils/health-check";
 import { userRouter, permissionRouter, visitorCentreRouter, loaderRouter } from "./routes";
 import { CreateMigrationRoutes } from "./data";
-import axios from "axios";
 import { Scheduler } from "./utils/scheduler";
 
 //import { configureLocalAuthentication } from "./routes/auth-local";
