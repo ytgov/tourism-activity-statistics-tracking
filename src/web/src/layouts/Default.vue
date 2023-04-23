@@ -1,13 +1,17 @@
 <template>
   <v-app-bar app color="#fff" flat height="70" style="left: 0; border-bottom: 3px #f3b228 solid">
-    <img src="/yukon.svg" style="margin: -10px 85px 0 14px" height="44" />
+    <router-link to="/dashboard"><img src="/yukon.svg" style="margin: -10px 85px 0 14px" height="44" /></router-link>
     <!-- <v-img class="ml-0m pl-0" src="src/assets/yukon.svg" height="44" /> -->
-    <v-app-bar-title class="pt-0 font-weight-bold" style="margin-left: -20px">{{ title }}</v-app-bar-title>
+    <v-app-bar-title class="pt-0 font-weight-bold" style="margin-left: -20px">
+      <router-link class="top-link" to="/dashboard">{{ title }}</router-link>
+    </v-app-bar-title>
 
     <template v-slot:append>
       <div v-if="isAuthenticated">
         <v-btn color="primary" class="mr-1" to="/dashboard" icon="mdi-home"></v-btn>
 
+        <router-link v-if="isAdmin" class="mr-1 ml-4" to="/reports">Reports</router-link>
+        
         <v-divider class="mr-5" vertical inset></v-divider>
         <span style="font-size: 0.9rem"> {{ username }} </span>
 
@@ -24,12 +28,12 @@
               <v-list-item-title style="font-size: 0.9rem !important">My profile</v-list-item-title>
             </v-list-item>
 
-            <v-list-item to="/reports" v-if="isAdmin">
+           <!--  <v-list-item to="/reports" v-if="isAdmin">
               <template v-slot:prepend>
                 <v-icon>mdi-view-dashboard</v-icon>
               </template>
               <v-list-item-title style="font-size: 0.9rem !important">Reports</v-list-item-title>
-            </v-list-item>
+            </v-list-item> -->
 
             <v-list-item to="/administration" v-if="isAdmin">
               <template v-slot:prepend>
@@ -122,5 +126,11 @@ export default {
 <style scoped>
 .v-list-item__prepend > .v-icon {
   margin-inline-end: 12px;
+}
+.top-link {
+  color: #323232;
+}
+.top-link:hover {
+  text-decoration: underline;
 }
 </style>
