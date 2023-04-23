@@ -9,12 +9,20 @@
         hide-details
         v-model="selectedSite"
         return-object
-        style="max-width: 220px"
+        style="max-width: 250px"
         item-title="name"
         :disabled="isDirty"
         @update:modelValue="changed"
         item-value="id"></v-select>
     </template>
+
+    <template v-slot:center>
+      <div style="margin-top: 0px; text-align: center">
+        <div style="font-size: 1.5rem; font-weight: bold; line-height: 1.6rem">{{ totalCountHeader }}</div>
+        {{ dateHeader }}
+      </div>
+    </template>
+
     <template v-slot:right>
       <v-select
         v-model="selectedDate"
@@ -24,12 +32,12 @@
         return-object
         hide-details
         :disabled="isDirty"
-        style="max-width: 220px"></v-select>
+        style="max-width: 250px"></v-select>
     </template>
 
     <div v-if="selectedSite">
       <v-row class="mt-5">
-        <v-col cols="6">Origin</v-col>
+        <v-col cols="6">Visitor Origin</v-col>
         <v-col cols="3" class="text-body-1 text-center"> Daily Totals </v-col>
         <!-- <v-col cols="3" class="text-body-1 text-center"> Weekly Totals </v-col> -->
       </v-row>
@@ -38,8 +46,12 @@
         <v-col cols="6">
           <div class="text-h6 float-left pt-3">{{ location.name }}</div>
           <div class="float-right">
-            <v-btn variant="flat" color="green" icon="" class="mr-3" @click="plusOne(location)">+1</v-btn>
-            <v-btn variant="flat" color="green" icon="" class="mr-10" @click="plusFive(location)">+5</v-btn>
+            <v-btn variant="flat" color="#3A8340" icon="" class="mr-3" @click="plusOne(location)"
+              ><span style="color: white">+1</span></v-btn
+            >
+            <v-btn variant="flat" color="#3A8340" icon="" class="mr-10" @click="plusFive(location)"
+              ><span style="color: white">+5</span></v-btn
+            >
             <v-btn
               variant="flat"
               color="orange"
@@ -74,6 +86,7 @@
 </template>
 <script lang="ts">
 import { mapActions, mapState, mapWritableState } from "pinia";
+import moment from "moment";
 import { useUserStore } from "@/store/UserStore";
 import { useCentreStore } from "../store";
 
@@ -113,6 +126,21 @@ export default {
         .filter((s: any) => s.name.startsWith("VIC.INPUT"))
         .map((s: any) => parseInt(s.name.replace("VIC.INPUT_", "")));
     },
+    totalCountHeader() {
+      if (this.selectedDate && this.selectedDate.origins) {
+        let counts = this.selectedDate.origins.flatMap((i: any) => i.daily_total);
+        let total = counts.reduce((t: number, i: any) => t + i, 0);
+        return `${total} visitors`;
+      }
+      return "";
+    },
+    dateHeader() {
+      if (this.selectedSite && this.selectedDate) {
+        return `${moment(this.selectedDate.date).format("MMMM D, YYYY")} in ${this.selectedSite.name}`;
+      }
+
+      return "";
+    },
   },
   methods: {
     ...mapActions(useUserStore, ["canDo"]),
@@ -141,3 +169,16 @@ export default {
   },
 };
 </script>
+
+<style>
+.v-btn.v-btn--disabled.bg-orange {
+  background-color: #895200 !important;
+}
+.v-btn.v-btn--disabled.bg-orange .v-btn__overlay {
+  opacity: 0;
+}
+
+.v-btn.v-btn--disabled.bg-orange .v-btn__content {
+  color: white !important;
+}
+</style>

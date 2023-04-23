@@ -63,6 +63,13 @@ export const useCentreStore = defineStore("centre", {
           let currentDate = this.selectedDate.date;
           let day = resp.data.days.filter((f: any) => f.date == currentDate)[0];
           this.selectedDate = day;
+
+          if (this.selectedSite) {
+            const index = this.manageSites.map((s) => s.id).indexOf(this.selectedSite.id);
+            if (index !== -1) {
+              this.manageSites.splice(index, 1, this.selectedSite);
+            }
+          }
         });
 
       m.notify({ variant: "success", text: "Saved" });
