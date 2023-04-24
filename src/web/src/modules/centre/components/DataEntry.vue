@@ -37,15 +37,18 @@
 
     <div v-if="selectedSite">
       <v-row class="mt-5">
-        <v-col cols="6">Visitor Origin</v-col>
+        <v-col cols="3">Visitor Origin</v-col>
+        <v-col></v-col>
         <v-col cols="3" class="text-body-1 text-center"> Daily Totals </v-col>
         <!-- <v-col cols="3" class="text-body-1 text-center"> Weekly Totals </v-col> -->
       </v-row>
       <v-row v-for="(location, idx) of selectedDate.origins" :key="idx">
         <v-divider></v-divider>
-        <v-col cols="6">
+        <v-col cols="3">
           <div class="text-h6 float-left pt-3">{{ location.name }}</div>
-          <div class="float-right">
+        </v-col>
+        <v-col>
+          <div class="text-center">
             <v-btn variant="flat" color="#3A8340" icon="" class="mr-3" @click="plusOne(location)"
               ><span style="color: white">+1</span></v-btn
             >
