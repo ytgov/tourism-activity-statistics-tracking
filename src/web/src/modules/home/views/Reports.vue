@@ -1,40 +1,11 @@
 <template>
   <h1 class="text-h5 mb-5">Reports</h1>
 
-  <!--  <v-row>
-    <v-col cols="7">
-      <v-card class="mb-5">
-        <v-card-text>
-          <h4 class="text-h6">Visitiors by Month</h4>
-        </v-card-text>
-        <MonthChart></MonthChart>
-      </v-card>
-    </v-col>
+  <v-card style="width: 100%; height: calc(100% - 70px)">
+    <v-progress-linear :indeterminate="iFrameLoading" :active="iFrameLoading" color="primary"></v-progress-linear>
 
-    <v-col cols="5">
-      <v-card class="mb-5">
-        <v-card-text> <h4 class="text-h6">Visitors by Day of Week</h4> </v-card-text>
-        <DayOfWeekChart></DayOfWeekChart>
-      </v-card>
-    </v-col>
-    <v-col cols="5">
-      <v-card class="mb-5">
-        <v-card-text>
-          <h4 class="text-h6">Visitors by Time of Day</h4>
-        </v-card-text>
-
-        <TimeOfDayChart></TimeOfDayChart>
-      </v-card>
-    </v-col>
-    <v-col cols="7">
-      <v-card class="mb-5">
-        <v-card-text> <h4 class="text-h6">Visitors by Year</h4> </v-card-text>
-        <YearChart></YearChart>
-      </v-card>
-    </v-col>
-  </v-row> -->
-
-  <iframe :src="iframeUrl" frameborder="0" style="width: 100%" height="100%" allowtransparency></iframe>
+    <iframe id="iframe" :src="iframeUrl" frameborder="0" style="width: 100%" height="100%" allowtransparency></iframe>
+  </v-card>
 </template>
 
 <script lang="ts">
@@ -43,7 +14,7 @@ import DayOfWeekChart from "@/modules/charts/DayOfWeekChart.vue";
 import MonthChart from "@/modules/charts/MonthChart.vue";
 import YearChart from "@/modules/charts/YearChart.vue";
 
-import { mapState } from "pinia";
+import { mapActions, mapState } from "pinia";
 import { useCentreStore } from "@/modules/centre/store";
 
 export default {
@@ -51,8 +22,23 @@ export default {
   components: { TimeOfDayChart, DayOfWeekChart, MonthChart, YearChart },
   data: () => ({
     token: "",
+    iFrameLoading: true,
   }),
-  mounted() {},
+  async mounted() {
+    await this.loadReportToken();
+
+    const iframeEle = document.getElementById("iframe");
+
+    let that = this;
+
+    if (iframeEle) {
+      iframeEle.addEventListener("load", function () {
+        // Hide the loading indicator
+        console.log("FINISHED LOADING");
+        that.iFrameLoading = false;
+      });
+    }
+  },
   computed: {
     ...mapState(useCentreStore, ["reportToken", "metabaseUrl"]),
 
@@ -62,6 +48,9 @@ export default {
       );
     },
   },
-  methods: {},
+  methods: {
+    ...mapActions(useCentreStore, ["loadReportToken"]),
+  },
 };
 </script>
+<style></style>
