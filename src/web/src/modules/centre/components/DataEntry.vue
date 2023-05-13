@@ -13,12 +13,10 @@
   </div>
 
   <template v-if="entryMode">
-    IncrementalDataEntryCard
-    <IncrementalDataEntryCard />
+    <BulkDataEntryCard />
   </template>
   <template v-else>
-    BulkDataEntryCard
-    <BulkDataEntryCard />
+    <IncrementalDataEntryCard />
   </template>
 </template>
 
@@ -34,7 +32,7 @@ export default {
   },
   data () {
     return {
-      entryMode: false,
+      entryMode: true,
     }
   },
 }

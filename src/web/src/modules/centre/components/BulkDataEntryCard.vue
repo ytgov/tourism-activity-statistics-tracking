@@ -36,50 +36,48 @@
     <div v-if="selectedSite">
       <v-row class="mt-5">
         <v-col cols="3">Visitor Origin</v-col>
-        <v-col></v-col>
-        <v-col cols="3" class="text-body-1 text-center"> Daily Totals </v-col>
-        <!-- <v-col cols="3" class="text-body-1 text-center"> Weekly Totals </v-col> -->
+        <v-col>
+          <v-text-field
+            :value="totalVistorsForDay"
+            type="number"
+            min="0"
+            label="Daily Total"
+            hide-details
+            @input="updateFullTotal"
+          />
+        </v-col>
+        <v-col cols="3" class="text-body-1 text-center">
+          Daily Totals by Location
+        </v-col>
       </v-row>
       <v-row v-for="(location, idx) of selectedDate.origins" :key="idx">
         <v-divider></v-divider>
         <v-col cols="3">
           <div class="text-h6 float-left pt-3">{{ location.name }}</div>
         </v-col>
-        <v-col>
-          <div class="text-center">
-            <v-btn variant="flat" color="#3A8340" icon="" class="mr-3" @click="plusOne(location)"
-              ><span style="color: white">+1</span></v-btn
-            >
-            <v-btn variant="flat" color="#3A8340" icon="" class="mr-10" @click="plusFive(location)"
-              ><span style="color: white">+5</span></v-btn
-            >
-            <v-btn
-              variant="flat"
-              color="orange"
-              icon=""
-              class="mr-3"
-              @click="minusOne(location)"
-              :disabled="location.daily_total - 1 < 0"
-              >-1</v-btn
-            >
-            <v-btn
-              variant="flat"
-              color="orange"
-              icon=""
-              class="mr-0"
-              @click="minusFive(location)"
-              :disabled="location.daily_total - 5 < 0"
-              >-5</v-btn
-            >
-          </div>
+        <v-col class="text-h6 text-center pt-3">
+          <v-slider
+            v-model="slider"
+            class="align-center"
+            :max="unallocatedVistors"
+            min="0"
+            hide-details
+          >
+            <template v-slot:append>
+              <v-text-field
+                v-model="slider"
+                :value="location.daily_total"
+                hide-details
+                single-line
+                density="compact"
+                type="number"
+                :max="max"
+                min="0"
+                @input="updateLocationCategoryTotal(location, $event.target.value)"
+              ></v-text-field>
+            </template>
+          </v-slider>
         </v-col>
-
-        <v-col cols="3" class="text-h6 text-center pt-3">
-          <div class="pt-3">{{ location.daily_total }}</div>
-        </v-col>
-        <!-- <v-col cols="3" class="text-h6 text-center pt-3">
-          <div class="pt-3">{{ location.weekly_total }}</div>
-        </v-col> -->
       </v-row>
     </div>
     <div v-else>Not site selected</div>
@@ -96,45 +94,39 @@ export default {
   name: "BulkDataEntryCard",
   components: {},
   data: () => ({
-    total: 0,
     isDirty: false,
+    dailyTotalVisitors: 0,
   }),
-  async mounted() {
-    //if (this.user.primary_site && this.user.primary_site != -1) this.site = this.user.primary_site;
-    let r = window.setInterval(async () => {
-      if (!this.isDirty) return;
-
-      await this.save();
-      this.isDirty = false;
-    }, 2000);
-
+  mounted() {
     if (this.loadFor.length > 0) {
-      await this.loadDailyStats(this.loadFor);
-      this.selectFirstToManage();
-    }
-  },
-  async beforeUnmount() {
-    if (this.selectedDate && this.isDirty) {
-      await this.save();
+      this.loadDailyStats(this.loadFor).then(() => {
+        return this.selectFirstToManage();
+      })
     }
   },
   computed: {
     ...mapState(useUserStore, ["user"]),
     ...mapState(useCentreStore, ["dateOptions", "manageSites"]),
     ...mapWritableState(useCentreStore, ["selectedDate", "selectedSite"]),
-
     loadFor() {
       return this.user.scopes
         .filter((s: any) => s.name.startsWith("VIC.INPUT"))
         .map((s: any) => parseInt(s.name.replace("VIC.INPUT_", "")));
     },
     totalCountHeader() {
+      if (this.totalVistorsForDay > 0) {
+        return `${this.totalVistorsForDay} visitors`;
+      }
+      return "";
+    },
+    totalVistorsForDay() {
       if (this.selectedDate && this.selectedDate.origins) {
         let counts = this.selectedDate.origins.flatMap((i: any) => i.daily_total);
         let total = counts.reduce((t: number, i: any) => t + i, 0);
-        return `${total} visitors`;
+        return total;
       }
-      return "";
+
+      return 0
     },
     dateHeader() {
       if (this.selectedSite && this.selectedDate) {
@@ -143,31 +135,30 @@ export default {
 
       return "";
     },
+    unknownLocation() {
+      if (this.selectedSite && this.selectedDate) {
+        return this.selectedDate.origins.find(location => location.name == "Unknown")
+      }
+
+      return {}
+    },
+    unallocatedVistors() {
+      return this.unknownLocation.daily_total || 0
+    }
   },
   methods: {
     ...mapActions(useUserStore, ["canDo"]),
     ...mapActions(useCentreStore, ["save", "loadDailyStats", "selectFirstToManage"]),
-
-    changed() {
-      this.selectedDate = (this.selectedSite as any).days[0];
+    siteChanged() {
+      this.selectedDate = this.selectedSite.days[0];
     },
-
-    plusOne(location: any) {
-      this.isDirty = true;
-      location.delta++;
+    updateLocationCategoryTotal(location: any, value: Number) {
+      this.isDirty = true
+      location.daily_total = parseInt(value);
     },
-    plusFive(location: any) {
-      this.isDirty = true;
-      location.delta += 5;
-    },
-    minusOne(location: any) {
-      this.isDirty = true;
-      location.delta--;
-    },
-    minusFive(location: any) {
-      this.isDirty = true;
-      location.delta -= 5;
-    },
+    updateFullTotal(value) {
+      // get total of all
+    }
   },
 };
 </script>
