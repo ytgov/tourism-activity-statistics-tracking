@@ -10,13 +10,16 @@
         style="max-width: 250px"
         item-title="name"
         :disabled="isDirty"
-        @update:modelValue="changed"
-        item-value="id"></v-select>
+        @update:modelValue="selectTodaysDate"
+        item-value="id"
+      ></v-select>
     </template>
 
     <template v-slot:center>
       <div style="margin-top: 0px; text-align: center">
-        <div style="font-size: 1.5rem; font-weight: bold; line-height: 1.6rem">{{ totalCountHeader }}</div>
+        <div style="font-size: 1.5rem; font-weight: bold; line-height: 1.6rem">
+          {{ totalCountHeader }}
+        </div>
         {{ dateHeader }}
       </div>
     </template>
@@ -30,22 +33,27 @@
         return-object
         hide-details
         :disabled="isDirty"
-        style="max-width: 250px"></v-select>
+        style="max-width: 250px"
+      ></v-select>
     </template>
 
     <div v-if="selectedSite">
       <v-row class="mt-5">
-        <v-col cols="3">Visitor Origin</v-col>
-        <v-col>
+        <v-col></v-col>
+        <v-col cols="3">
           <v-text-field
-            :value="totalVistorsForDay"
+            :modelValue="totalVistorsForDay"
+            @update:modelValue="updateTotalVistors"
             type="number"
             min="0"
             label="Daily Total"
             hide-details
-            @input="updateFullTotal"
           />
         </v-col>
+      </v-row>
+      <v-row class="mt-5">
+        <v-col cols="3">Visitor Origin</v-col>
+        <v-col> </v-col>
         <v-col cols="3" class="text-body-1 text-center">
           Daily Totals by Location
         </v-col>
@@ -55,28 +63,35 @@
         <v-col cols="3">
           <div class="text-h6 float-left pt-3">{{ location.name }}</div>
         </v-col>
-        <v-col class="text-h6 text-center pt-3">
-          <v-slider
-            v-model="slider"
-            class="align-center"
-            :max="unallocatedVistors"
-            min="0"
-            hide-details
-          >
-            <template v-slot:append>
-              <v-text-field
-                v-model="slider"
-                :value="location.daily_total"
-                hide-details
-                single-line
-                density="compact"
-                type="number"
-                :max="max"
-                min="0"
-                @input="updateLocationCategoryTotal(location, $event.target.value)"
-              ></v-text-field>
-            </template>
-          </v-slider>
+        <v-col></v-col>
+        <v-col cols="3">
+          <template v-if="location.name == UNKNOWN_CATEGORY_LOCATION_NAME">
+            <v-text-field
+              :modelValue="uncategorizedLocation.daily_total"
+              @update:modelValue="(newValue) => uncategorizedLocation.daily_total = parseInt(newValue)"
+              density="compact"
+              hide-details
+              min="0"
+              readonly
+              disabled
+              single-line
+              type="number"
+            ></v-text-field>
+          </template>
+          <template v-else>
+            <v-text-field
+              :max="uncategorizedVistors"
+              :modelValue="location.daily_total"
+              @update:modelValue="
+                (newValue) => updateLocationCategoryTotal(location, newValue)
+              "
+              density="compact"
+              hide-details
+              min="0"
+              single-line
+              type="number"
+            ></v-text-field>
+          </template>
         </v-col>
       </v-row>
     </div>
@@ -85,6 +100,8 @@
 </template>
 
 <script lang="ts">
+const UNKNOWN_CATEGORY_LOCATION_NAME = "Unknown";
+
 import { mapActions, mapState, mapWritableState } from "pinia";
 import moment from "moment";
 import { useUserStore } from "@/store/UserStore";
@@ -95,13 +112,14 @@ export default {
   components: {},
   data: () => ({
     isDirty: false,
-    dailyTotalVisitors: 0,
+    totalVistorsForDay: 0,
+    UNKNOWN_CATEGORY_LOCATION_NAME,
   }),
   mounted() {
     if (this.loadFor.length > 0) {
       this.loadDailyStats(this.loadFor).then(() => {
         return this.selectFirstToManage();
-      })
+      });
     }
   },
   computed: {
@@ -119,46 +137,59 @@ export default {
       }
       return "";
     },
-    totalVistorsForDay() {
-      if (this.selectedDate && this.selectedDate.origins) {
-        let counts = this.selectedDate.origins.flatMap((i: any) => i.daily_total);
-        let total = counts.reduce((t: number, i: any) => t + i, 0);
-        return total;
-      }
-
-      return 0
-    },
     dateHeader() {
       if (this.selectedSite && this.selectedDate) {
-        return `${moment(this.selectedDate.date).format("MMMM D, YYYY")} in ${this.selectedSite.name}`;
+        return `${moment(this.selectedDate.date).format("MMMM D, YYYY")} in ${
+          this.selectedSite.name
+        }`;
       }
 
       return "";
     },
-    unknownLocation() {
-      if (this.selectedSite && this.selectedDate) {
-        return this.selectedDate.origins.find(location => location.name == "Unknown")
-      }
-
-      return {}
+    categorizedLocations() {
+      return this.selectedDate.origins.filter(
+        (location) => location.name !== UNKNOWN_CATEGORY_LOCATION_NAME
+      );
     },
-    unallocatedVistors() {
-      return this.unknownLocation.daily_total || 0
-    }
+    uncategorizedLocation() {
+      return this.selectedDate.origins.find(
+        (location) => location.name === UNKNOWN_CATEGORY_LOCATION_NAME
+      );
+    },
+    uncategorizedVistors() {
+      return this.uncategorizedLocation.daily_total;
+    },
+    categorizedVistors() {
+      return this.categorizedLocations.reduce(
+        (total, location) => total + location.daily_total,
+        0
+      );
+    },
   },
   methods: {
     ...mapActions(useUserStore, ["canDo"]),
-    ...mapActions(useCentreStore, ["save", "loadDailyStats", "selectFirstToManage"]),
-    siteChanged() {
+    ...mapActions(useCentreStore, [
+      "save",
+      "loadDailyStats",
+      "selectFirstToManage",
+    ]),
+    selectTodaysDate() {
       this.selectedDate = this.selectedSite.days[0];
     },
-    updateLocationCategoryTotal(location: any, value: Number) {
-      this.isDirty = true
+    updateLocationCategoryTotal(location, value) {
       location.daily_total = parseInt(value);
+      this.uncategorizedLocation.daily_total -= parseInt(value)
     },
-    updateFullTotal(value) {
-      // get total of all
-    }
+    updateTotalVistors(value) {
+      if (value < this.totalVistorsForDay) {
+        // remove uncategorized unill 0
+        // successively remove 1 from each other category
+        // until total vistors is 0
+      } else {
+        this.totalVistorsForDay = parseInt(value);
+        this.uncategorizedLocation.daily_total = this.totalVistorsForDay - this.categorizedVistors;
+      }
+    },
   },
 };
 </script>
