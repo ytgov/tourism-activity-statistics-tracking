@@ -46,7 +46,7 @@
             @update:modelValue="updateTotalVistors"
             type="number"
             min="0"
-            label="Daily Total"
+            label="Total Vistors for Day"
             hide-details
           />
         </v-col>
@@ -55,7 +55,7 @@
         <v-col cols="3">Visitor Origin</v-col>
         <v-col> </v-col>
         <v-col cols="3" class="text-body-1 text-center">
-          Daily Totals by Location
+          Vistors per Location
         </v-col>
       </v-row>
       <v-row v-for="(location, idx) of selectedDate.origins" :key="idx">
@@ -176,9 +176,13 @@ export default {
     selectTodaysDate() {
       this.selectedDate = this.selectedSite.days[0];
     },
+    updateUncategorizedVistors() {
+      this.uncategorizedLocation.daily_total = this.totalVistorsForDay - this.categorizedVistors
+    },
     updateLocationCategoryTotal(location, value) {
-      location.daily_total = parseInt(value);
-      this.uncategorizedLocation.daily_total -= parseInt(value)
+      const valueAsInt = parseInt(value) || 0
+      location.daily_total = valueAsInt;
+      this.updateUncategorizedVistors()
     },
     updateTotalVistors(value) {
       if (value < this.totalVistorsForDay) {
@@ -186,8 +190,8 @@ export default {
         // successively remove 1 from each other category
         // until total vistors is 0
       } else {
-        this.totalVistorsForDay = parseInt(value);
-        this.uncategorizedLocation.daily_total = this.totalVistorsForDay - this.categorizedVistors;
+        this.totalVistorsForDay = parseInt(value) || 0;
+        this.updateUncategorizedVistors()
       }
     },
   },
