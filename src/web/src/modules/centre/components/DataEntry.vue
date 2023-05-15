@@ -5,7 +5,7 @@
     <div>
       <v-switch
         v-model="entryMode"
-        label="Direct Input"
+        label="Bulk Input"
         color="primary"
         inset
       ></v-switch>

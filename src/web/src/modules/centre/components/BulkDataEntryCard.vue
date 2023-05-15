@@ -94,6 +94,17 @@
           </template>
         </v-col>
       </v-row>
+      <v-row>
+        <v-col cols="9"></v-col>
+        <v-col>
+          <v-btn
+            color="primary"
+            size="large"
+            block
+            @input="save"
+          >Save</v-btn>
+        </v-col>
+      </v-row>
     </div>
     <div v-else>Not site selected</div>
   </BaseCard>
