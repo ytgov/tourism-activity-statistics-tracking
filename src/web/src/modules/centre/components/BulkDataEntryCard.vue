@@ -55,7 +55,7 @@
         <v-col cols="3">Visitor Origin</v-col>
         <v-col> </v-col>
         <v-col cols="3" class="text-body-1 text-center">
-          Vistors per Location
+          Daily Visitors
         </v-col>
       </v-row>
       <v-row v-for="(location, idx) of selectedDate.origins" :key="idx">
