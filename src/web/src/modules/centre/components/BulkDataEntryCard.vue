@@ -61,11 +61,7 @@
         <v-col md="3">
           <template v-if="location.name == UNKNOWN_CATEGORY_LOCATION_NAME">
             <v-text-field
-              :modelValue="uncategorizedLocation.daily_total"
-              @update:modelValue="
-                (newValue) =>
-                  (uncategorizedLocation.daily_total = parseInt(newValue))
-              "
+              :modelValue="uncategorizedVistors"
               density="compact"
               hide-details
               min="0"
@@ -77,7 +73,7 @@
           </template>
           <template v-else>
             <v-text-field
-              :max="uncategorizedVistors"
+              :max="totalVistorsForDay - categorizedVistorsExceptThoseIn(location)"
               :modelValue="location.daily_total"
               @update:modelValue="
                 (newValue) => updateLocationCategoryTotal(location, newValue)
@@ -174,22 +170,32 @@ export default {
     selectTodaysDate() {
       this.selectedDate = this.selectedSite.days[0];
     },
+    categorizedVistorsExceptThoseIn(excludedLocation) {
+      return this.categorizedVistors - excludedLocation.daily_total
+    },
+    parseAndNaturalizeNumber(value) {
+      return Math.max(0, parseInt(value) || 0)
+    },
     updateUncategorizedVistors() {
       this.uncategorizedLocation.daily_total =
         this.totalVistorsForDay - this.categorizedVistors;
     },
     updateLocationCategoryTotal(location, value) {
-      const valueAsInt = parseInt(value) || 0;
-      location.daily_total = valueAsInt;
+      const normalizedValue = this.parseAndNaturalizeNumber(value)
+      location.daily_total = normalizedValue;
       this.updateUncategorizedVistors();
     },
     updateTotalVistors(value) {
-      if (value < this.totalVistorsForDay) {
-        // remove uncategorized unill 0
+      const normalizedValue = this.parseAndNaturalizeNumber(value)
+
+      if (normalizedValue < this.totalVistorsForDay) {
+        this.totalVistorsForDay = normalizedValue;
+        // TODO
+        // remove uncategorized unil 0
         // successively remove 1 from each other category
         // until total vistors is 0
       } else {
-        this.totalVistorsForDay = parseInt(value) || 0;
+        this.totalVistorsForDay = normalizedValue;
         this.updateUncategorizedVistors();
       }
     },
