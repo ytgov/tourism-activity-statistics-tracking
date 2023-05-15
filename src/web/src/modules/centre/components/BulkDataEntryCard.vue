@@ -9,7 +9,6 @@
         return-object
         style="max-width: 250px"
         item-title="name"
-        :disabled="isDirty"
         @update:modelValue="selectTodaysDate"
         item-value="id"
       ></v-select>
@@ -32,7 +31,6 @@
         item-title="date"
         return-object
         hide-details
-        :disabled="isDirty"
         style="max-width: 250px"
       ></v-select>
     </template>
@@ -53,9 +51,7 @@
       </v-row>
       <v-row class="mt-5">
         <v-col>Visitor Origin</v-col>
-        <v-col md="3">
-          Daily Visitors
-        </v-col>
+        <v-col md="3"> Daily Visitors </v-col>
       </v-row>
       <v-row v-for="(location, idx) of selectedDate.origins" :key="idx">
         <v-divider></v-divider>
@@ -66,7 +62,10 @@
           <template v-if="location.name == UNKNOWN_CATEGORY_LOCATION_NAME">
             <v-text-field
               :modelValue="uncategorizedLocation.daily_total"
-              @update:modelValue="(newValue) => uncategorizedLocation.daily_total = parseInt(newValue)"
+              @update:modelValue="
+                (newValue) =>
+                  (uncategorizedLocation.daily_total = parseInt(newValue))
+              "
               density="compact"
               hide-details
               min="0"
@@ -95,12 +94,7 @@
       <v-row>
         <v-col></v-col>
         <v-col sm="6" md="3">
-          <v-btn
-            color="primary"
-            size="large"
-            block
-            @input="save"
-          >Save</v-btn>
+          <v-btn color="primary" size="large" block @input="save">Save</v-btn>
         </v-col>
       </v-row>
     </div>
@@ -109,37 +103,33 @@
 </template>
 
 <script lang="ts">
-const UNKNOWN_CATEGORY_LOCATION_NAME = "Unknown";
-
 import { mapActions, mapState, mapWritableState } from "pinia";
 import moment from "moment";
+import { isEmpty } from "lodash";
+
 import { useUserStore } from "@/store/UserStore";
 import { useCentreStore } from "../store";
+
+const UNKNOWN_CATEGORY_LOCATION_NAME = "Unknown";
 
 export default {
   name: "BulkDataEntryCard",
   components: {},
   data: () => ({
-    isDirty: false,
     totalVistorsForDay: 0,
     UNKNOWN_CATEGORY_LOCATION_NAME,
   }),
   mounted() {
-    if (this.loadFor.length > 0) {
-      this.loadDailyStats(this.loadFor).then(() => {
+    if (!isEmpty(this.dataEntrySites)) {
+      this.loadDailyStats(this.dataEntrySites).then(() => {
         return this.selectFirstToManage();
       });
     }
   },
   computed: {
-    ...mapState(useUserStore, ["user"]),
+    ...mapState(useUserStore, ["dataEntrySites"]),
     ...mapState(useCentreStore, ["dateOptions", "manageSites"]),
     ...mapWritableState(useCentreStore, ["selectedDate", "selectedSite"]),
-    loadFor() {
-      return this.user.scopes
-        .filter((s: any) => s.name.startsWith("VIC.INPUT"))
-        .map((s: any) => parseInt(s.name.replace("VIC.INPUT_", "")));
-    },
     totalCountHeader() {
       if (this.totalVistorsForDay > 0) {
         return `${this.totalVistorsForDay} visitors`;
@@ -176,7 +166,6 @@ export default {
     },
   },
   methods: {
-    ...mapActions(useUserStore, ["canDo"]),
     ...mapActions(useCentreStore, [
       "save",
       "loadDailyStats",
@@ -186,12 +175,13 @@ export default {
       this.selectedDate = this.selectedSite.days[0];
     },
     updateUncategorizedVistors() {
-      this.uncategorizedLocation.daily_total = this.totalVistorsForDay - this.categorizedVistors
+      this.uncategorizedLocation.daily_total =
+        this.totalVistorsForDay - this.categorizedVistors;
     },
     updateLocationCategoryTotal(location, value) {
-      const valueAsInt = parseInt(value) || 0
+      const valueAsInt = parseInt(value) || 0;
       location.daily_total = valueAsInt;
-      this.updateUncategorizedVistors()
+      this.updateUncategorizedVistors();
     },
     updateTotalVistors(value) {
       if (value < this.totalVistorsForDay) {
@@ -200,7 +190,7 @@ export default {
         // until total vistors is 0
       } else {
         this.totalVistorsForDay = parseInt(value) || 0;
-        this.updateUncategorizedVistors()
+        this.updateUncategorizedVistors();
       }
     },
   },
