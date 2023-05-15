@@ -40,7 +40,7 @@
     <div v-if="selectedSite">
       <v-row class="mt-5">
         <v-col></v-col>
-        <v-col cols="3">
+        <v-col md="3">
           <v-text-field
             :modelValue="totalVistorsForDay"
             @update:modelValue="updateTotalVistors"
@@ -52,19 +52,17 @@
         </v-col>
       </v-row>
       <v-row class="mt-5">
-        <v-col cols="3">Visitor Origin</v-col>
-        <v-col> </v-col>
-        <v-col cols="3" class="text-body-1 text-center">
+        <v-col>Visitor Origin</v-col>
+        <v-col md="3">
           Daily Visitors
         </v-col>
       </v-row>
       <v-row v-for="(location, idx) of selectedDate.origins" :key="idx">
         <v-divider></v-divider>
-        <v-col cols="3">
+        <v-col>
           <div class="text-h6 float-left pt-3">{{ location.name }}</div>
         </v-col>
-        <v-col></v-col>
-        <v-col cols="3">
+        <v-col md="3">
           <template v-if="location.name == UNKNOWN_CATEGORY_LOCATION_NAME">
             <v-text-field
               :modelValue="uncategorizedLocation.daily_total"
@@ -95,8 +93,8 @@
         </v-col>
       </v-row>
       <v-row>
-        <v-col cols="9"></v-col>
-        <v-col>
+        <v-col></v-col>
+        <v-col sm="6" md="3">
           <v-btn
             color="primary"
             size="large"
