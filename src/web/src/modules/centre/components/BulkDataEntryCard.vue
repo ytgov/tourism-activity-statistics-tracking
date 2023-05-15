@@ -181,7 +181,11 @@ export default {
     },
     updateLocationCategoryTotal(location, value) {
       const normalizedValue = this.parseAndNaturalizeNumber(value)
-      location.daily_total = normalizedValue;
+
+      const maxAvailableVisitors = this.totalVistorsForDay - this.categorizedVistorsExceptThoseIn(location)
+      const maxLimitedValule = Math.min(normalizedValue, maxAvailableVisitors)
+
+      location.daily_total = maxLimitedValule;
       this.updateUncategorizedVistors();
     },
     updateTotalVistors(value) {
