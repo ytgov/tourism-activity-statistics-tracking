@@ -59,7 +59,7 @@
           <div class="text-h6 float-left pt-3">{{ location.name }}</div>
         </v-col>
         <v-col md="3">
-          <template v-if="location.name == UNKNOWN_CATEGORY_LOCATION_NAME">
+          <template v-if="location.id === uncategorizedLocation.id">
             <v-text-field
               :modelValue="uncategorizedVistors"
               density="compact"
@@ -113,7 +113,6 @@ export default {
   components: {},
   data: () => ({
     totalVistorsForDay: 0,
-    UNKNOWN_CATEGORY_LOCATION_NAME,
   }),
   mounted() {
     if (!isEmpty(this.dataEntrySites)) {
