@@ -110,6 +110,7 @@ const UNKNOWN_CATEGORY_LOCATION_NAME = "Unknown";
 
 export default {
   name: "BulkDataEntryCard",
+  emits: ["save"],
   components: {},
   data: () => ({
     totalVistorsForDay: 0,
@@ -174,7 +175,7 @@ export default {
     },
     saveAndExit() {
       this.save().then(() => {
-        this.$emit('saved')
+        this.$emit('save')
       })
     },
     updateUncategorizedVisitors() {

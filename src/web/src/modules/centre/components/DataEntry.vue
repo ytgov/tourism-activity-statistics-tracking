@@ -13,7 +13,9 @@
   </div>
 
   <template v-if="entryMode">
-    <BulkDataEntryCard />
+    <BulkDataEntryCard
+      @save="entryMode = false"
+    />
   </template>
   <template v-else>
     <IncrementalDataEntryCard />
