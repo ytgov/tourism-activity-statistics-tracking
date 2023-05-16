@@ -194,17 +194,13 @@ export default {
     },
     updateTotalVistors(value) {
       const normalizedValue = this.parseAndNaturalizeNumber(value)
-
       if (normalizedValue < this.totalVistorsForDay) {
-        this.totalVistorsForDay = normalizedValue;
-        // TODO
-        // remove uncategorized unil 0
-        // successively remove 1 from each other category
-        // until total vistors is 0
-      } else {
-        this.totalVistorsForDay = normalizedValue;
-        this.updateUncategorizedVisitors();
+        this.categorizedLocations.forEach(location => {
+          location.delta = -location.daily_total
+        })
       }
+      this.totalVistorsForDay = normalizedValue;
+      this.updateUncategorizedVisitors();
     },
   },
 };
