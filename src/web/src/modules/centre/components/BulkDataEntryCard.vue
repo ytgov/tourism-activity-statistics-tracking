@@ -74,7 +74,7 @@
           <template v-else>
             <v-text-field
               :max="totalVistorsForDay - categorizedVistorsExceptThoseIn(location)"
-              :modelValue="location.delta"
+              :modelValue="location.daily_total + location.delta"
               @update:modelValue="
                 (newValue) => updateLocationCategoryTotal(location, newValue)
               "
@@ -118,7 +118,8 @@ export default {
   mounted() {
     if (!isEmpty(this.dataEntrySites)) {
       this.loadDailyStats(this.dataEntrySites).then(() => {
-        return this.selectFirstToManage();
+        this.selectFirstToManage();
+        this.totalVistorsForDay = this.uncategorizedVisitors + this.categorizedVistors
       });
     }
   },
@@ -149,11 +150,11 @@ export default {
       );
     },
     uncategorizedVisitors() {
-      return this.uncategorizedLocation.delta;
+      return this.uncategorizedLocation.daily_total + this.uncategorizedLocation.delta;
     },
     categorizedVistors() {
       return this.categorizedLocations.reduce(
-        (total, location) => total + location.delta,
+        (total, location) => total + location.daily_total + location.delta,
         0
       );
     },
@@ -168,7 +169,7 @@ export default {
       this.selectedDate = this.selectedSite.days[0];
     },
     categorizedVistorsExceptThoseIn(excludedLocation) {
-      return this.categorizedVistors - excludedLocation.delta
+      return this.categorizedVistors - excludedLocation.daily_total - excludedLocation.delta
     },
     parseAndNaturalizeNumber(value) {
       return Math.max(0, parseInt(value) || 0)
@@ -180,7 +181,7 @@ export default {
     },
     updateUncategorizedVisitors() {
       this.uncategorizedLocation.delta =
-        this.totalVistorsForDay - this.categorizedVistors;
+        this.totalVistorsForDay - this.categorizedVistors - this.uncategorizedLocation.daily_total;
     },
     updateLocationCategoryTotal(location, value) {
       const normalizedValue = this.parseAndNaturalizeNumber(value)
@@ -188,7 +189,7 @@ export default {
       const maxAvailableVisitors = this.totalVistorsForDay - this.categorizedVistorsExceptThoseIn(location)
       const maxLimitedValule = Math.min(normalizedValue, maxAvailableVisitors)
 
-      location.delta = maxLimitedValule;
+      location.delta = maxLimitedValule - location.daily_total;
       this.updateUncategorizedVisitors();
     },
     updateTotalVistors(value) {
