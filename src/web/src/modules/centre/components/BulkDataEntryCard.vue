@@ -174,7 +174,7 @@ export default {
       return Math.max(0, parseInt(value) || 0)
     },
     saveAndExit() {
-      this.save().then(() => {
+      return this.save().then(() => {
         this.$emit('save')
       })
     },
