@@ -53,7 +53,7 @@
         <v-col>Visitor Origin</v-col>
         <v-col md="3"> Daily Visitors </v-col>
       </v-row>
-      <v-row v-for="(location, idx) of selectedDate.origins" :key="idx">
+      <v-row v-for="location in selectedDate.origins" :key="location.id">
         <v-divider></v-divider>
         <v-col>
           <div class="text-h6 float-left pt-3">{{ location.name }}</div>
@@ -61,7 +61,7 @@
         <v-col md="3">
           <template v-if="location.id === uncategorizedLocation.id">
             <v-text-field
-              :modelValue="uncategorizedVistors"
+              :modelValue="uncategorizedVisitors"
               density="compact"
               hide-details
               min="0"
@@ -74,7 +74,7 @@
           <template v-else>
             <v-text-field
               :max="totalVistorsForDay - categorizedVistorsExceptThoseIn(location)"
-              :modelValue="location.daily_total"
+              :modelValue="location.delta"
               @update:modelValue="
                 (newValue) => updateLocationCategoryTotal(location, newValue)
               "
@@ -90,7 +90,7 @@
       <v-row>
         <v-col></v-col>
         <v-col sm="6" md="3">
-          <v-btn color="primary" size="large" block @input="save">Save</v-btn>
+          <v-btn color="primary" size="large" block @click="saveAndExit">Save</v-btn>
         </v-col>
       </v-row>
     </div>
@@ -150,12 +150,12 @@ export default {
         (location) => location.name === UNKNOWN_CATEGORY_LOCATION_NAME
       );
     },
-    uncategorizedVistors() {
-      return this.uncategorizedLocation.daily_total;
+    uncategorizedVisitors() {
+      return this.uncategorizedLocation.delta;
     },
     categorizedVistors() {
       return this.categorizedLocations.reduce(
-        (total, location) => total + location.daily_total,
+        (total, location) => total + location.delta,
         0
       );
     },
@@ -170,13 +170,18 @@ export default {
       this.selectedDate = this.selectedSite.days[0];
     },
     categorizedVistorsExceptThoseIn(excludedLocation) {
-      return this.categorizedVistors - excludedLocation.daily_total
+      return this.categorizedVistors - excludedLocation.delta
     },
     parseAndNaturalizeNumber(value) {
       return Math.max(0, parseInt(value) || 0)
     },
-    updateUncategorizedVistors() {
-      this.uncategorizedLocation.daily_total =
+    saveAndExit() {
+      this.save().then(() => {
+        this.$emit('saved')
+      })
+    },
+    updateUncategorizedVisitors() {
+      this.uncategorizedLocation.delta =
         this.totalVistorsForDay - this.categorizedVistors;
     },
     updateLocationCategoryTotal(location, value) {
@@ -185,8 +190,8 @@ export default {
       const maxAvailableVisitors = this.totalVistorsForDay - this.categorizedVistorsExceptThoseIn(location)
       const maxLimitedValule = Math.min(normalizedValue, maxAvailableVisitors)
 
-      location.daily_total = maxLimitedValule;
-      this.updateUncategorizedVistors();
+      location.delta = maxLimitedValule;
+      this.updateUncategorizedVisitors();
     },
     updateTotalVistors(value) {
       const normalizedValue = this.parseAndNaturalizeNumber(value)
@@ -199,7 +204,7 @@ export default {
         // until total vistors is 0
       } else {
         this.totalVistorsForDay = normalizedValue;
-        this.updateUncategorizedVistors();
+        this.updateUncategorizedVisitors();
       }
     },
   },
