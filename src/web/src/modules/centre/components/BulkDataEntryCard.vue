@@ -126,10 +126,7 @@ export default {
     ...mapState(useCentreStore, ["dateOptions", "manageSites"]),
     ...mapWritableState(useCentreStore, ["selectedDate", "selectedSite"]),
     totalCountHeader() {
-      if (this.totalVistorsForDay > 0) {
-        return `${this.totalVistorsForDay} visitors`;
-      }
-      return "";
+      return `${this.totalVistorsForDay} visitors`;
     },
     dateHeader() {
       if (this.selectedSite && this.selectedDate) {
