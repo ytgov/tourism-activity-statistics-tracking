@@ -52,7 +52,7 @@ export const useCentreStore = defineStore("centre", {
     async save() {
       const api = useApiStore();
 
-      api
+      return api
         .secureCall("put", `${VISITORCENTRE_URL}/record-stats`, {
           date: this.selectedDate,
           site: this.selectedSite,
@@ -70,9 +70,11 @@ export const useCentreStore = defineStore("centre", {
               this.manageSites.splice(index, 1, this.selectedSite);
             }
           }
-        });
 
-      m.notify({ variant: "success", text: "Saved" });
+          m.notify({ variant: "success", text: "Saved" });
+
+          return this.selectedSite
+        });
     },
 
     add(originName: string, date: string, amount: number) {
