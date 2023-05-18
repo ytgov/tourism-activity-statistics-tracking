@@ -10,8 +10,7 @@
         style="max-width: 250px"
         item-title="name"
         @update:modelValue="selectTodaysDate"
-        item-value="id"
-      ></v-select>
+        item-value="id"></v-select>
     </template>
 
     <template v-slot:center>
@@ -31,22 +30,21 @@
         item-title="date"
         return-object
         hide-details
-        style="max-width: 250px"
-      ></v-select>
+        style="max-width: 250px"></v-select>
     </template>
 
     <div v-if="selectedSite">
       <v-row class="mt-5">
         <v-col></v-col>
-        <v-col md="3">
+        <v-col md="3" class="px-0">
           <v-text-field
             :modelValue="totalVistorsForDay"
             @update:modelValue="updateTotalVistors"
             type="number"
             min="0"
-            label="Total Vistors for Day"
+            label="Total vistors for day"
             hide-details
-          />
+            bg-color="#e0f2f4" />
         </v-col>
       </v-row>
       <v-row class="mt-5">
@@ -58,7 +56,7 @@
         <v-col>
           <div class="text-h6 float-left pt-3">{{ location.name }}</div>
         </v-col>
-        <v-col md="3">
+        <v-col md="3" class="px-0">
           <template v-if="location.id === uncategorizedLocation.id">
             <v-text-field
               :modelValue="uncategorizedVisitors"
@@ -66,24 +64,21 @@
               hide-details
               min="0"
               readonly
-              disabled
+              append-inner-icon="mdi-lock"
               single-line
-              type="number"
-            ></v-text-field>
+              bg-color="#dedede"
+              type="number"></v-text-field>
           </template>
           <template v-else>
             <v-text-field
               :max="totalVistorsForDay - categorizedVistorsExceptThoseIn(location)"
               :modelValue="location.daily_total + location.delta"
-              @update:modelValue="
-                (newValue) => updateLocationCategoryTotal(location, newValue)
-              "
+              @update:modelValue="(newValue) => updateLocationCategoryTotal(location, newValue)"
               density="compact"
               hide-details
               min="0"
               single-line
-              type="number"
-            ></v-text-field>
+              type="number"></v-text-field>
           </template>
         </v-col>
       </v-row>
@@ -119,7 +114,7 @@ export default {
     if (!isEmpty(this.dataEntrySites)) {
       this.loadDailyStats(this.dataEntrySites).then(() => {
         this.selectFirstToManage();
-        this.totalVistorsForDay = this.uncategorizedVisitors + this.categorizedVistors
+        this.totalVistorsForDay = this.uncategorizedVisitors + this.categorizedVistors;
       });
     }
   },
@@ -132,72 +127,59 @@ export default {
     },
     dateHeader() {
       if (this.selectedSite && this.selectedDate) {
-        return `${moment(this.selectedDate.date).format("MMMM D, YYYY")} in ${
-          this.selectedSite.name
-        }`;
+        return `${moment(this.selectedDate.date).format("MMMM D, YYYY")} in ${this.selectedSite.name}`;
       }
 
       return "";
     },
     categorizedLocations() {
-      return this.selectedDate.origins.filter(
-        (location) => location.name !== UNKNOWN_CATEGORY_LOCATION_NAME
-      );
+      return this.selectedDate.origins.filter((location) => location.name !== UNKNOWN_CATEGORY_LOCATION_NAME);
     },
     uncategorizedLocation() {
-      return this.selectedDate.origins.find(
-        (location) => location.name === UNKNOWN_CATEGORY_LOCATION_NAME
-      );
+      return this.selectedDate.origins.find((location) => location.name === UNKNOWN_CATEGORY_LOCATION_NAME);
     },
     uncategorizedVisitors() {
       return this.uncategorizedLocation.daily_total + this.uncategorizedLocation.delta;
     },
     categorizedVistors() {
-      return this.categorizedLocations.reduce(
-        (total, location) => total + location.daily_total + location.delta,
-        0
-      );
+      return this.categorizedLocations.reduce((total, location) => total + location.daily_total + location.delta, 0);
     },
   },
   methods: {
-    ...mapActions(useCentreStore, [
-      "save",
-      "loadDailyStats",
-      "selectFirstToManage",
-    ]),
+    ...mapActions(useCentreStore, ["save", "loadDailyStats", "selectFirstToManage"]),
     selectTodaysDate() {
       this.selectedDate = this.selectedSite.days[0];
     },
     categorizedVistorsExceptThoseIn(excludedLocation) {
-      return this.categorizedVistors - excludedLocation.daily_total - excludedLocation.delta
+      return this.categorizedVistors - excludedLocation.daily_total - excludedLocation.delta;
     },
     parseAndNaturalizeNumber(value) {
-      return Math.max(0, parseInt(value) || 0)
+      return Math.max(0, parseInt(value) || 0);
     },
     saveAndExit() {
       return this.save().then(() => {
-        this.$emit('save')
-      })
+        this.$emit("save");
+      });
     },
     updateUncategorizedVisitors() {
       this.uncategorizedLocation.delta =
         this.totalVistorsForDay - this.categorizedVistors - this.uncategorizedLocation.daily_total;
     },
     updateLocationCategoryTotal(location, value) {
-      const normalizedValue = this.parseAndNaturalizeNumber(value)
+      const normalizedValue = this.parseAndNaturalizeNumber(value);
 
-      const maxAvailableVisitors = this.totalVistorsForDay - this.categorizedVistorsExceptThoseIn(location)
-      const maxLimitedValule = Math.min(normalizedValue, maxAvailableVisitors)
+      const maxAvailableVisitors = this.totalVistorsForDay - this.categorizedVistorsExceptThoseIn(location);
+      const maxLimitedValule = Math.min(normalizedValue, maxAvailableVisitors);
 
       location.delta = maxLimitedValule - location.daily_total;
       this.updateUncategorizedVisitors();
     },
     updateTotalVistors(value) {
-      const normalizedValue = this.parseAndNaturalizeNumber(value)
+      const normalizedValue = this.parseAndNaturalizeNumber(value);
       if (normalizedValue < this.totalVistorsForDay) {
-        this.categorizedLocations.forEach(location => {
-          location.delta = -location.daily_total
-        })
+        this.categorizedLocations.forEach((location) => {
+          location.delta = -location.daily_total;
+        });
       }
       this.totalVistorsForDay = normalizedValue;
       this.updateUncategorizedVisitors();

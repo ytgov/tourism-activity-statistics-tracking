@@ -34,7 +34,6 @@ export default {
     if (iframeEle) {
       iframeEle.addEventListener("load", function () {
         // Hide the loading indicator
-        console.log("FINISHED LOADING");
         that.iFrameLoading = false;
       });
     }

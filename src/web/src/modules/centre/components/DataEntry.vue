@@ -5,9 +5,9 @@
     <div>
       <v-switch
         v-model="entryMode"
-        label="Bulk Input"
+        label="Direct entry"
         color="primary"
-        inset
+        hide-details
       ></v-switch>
     </div>
   </div>
@@ -23,8 +23,8 @@
 </template>
 
 <script lang="ts">
-import IncrementalDataEntryCard from "./IncrementalDataEntryCard";
-import BulkDataEntryCard from "./BulkDataEntryCard";
+import IncrementalDataEntryCard from "./IncrementalDataEntryCard.vue";
+import BulkDataEntryCard from "./BulkDataEntryCard.vue";
 
 export default {
   name: "DataEntry",
