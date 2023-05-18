@@ -133,27 +133,30 @@ export default {
       return "";
     },
     categorizedLocations() {
-      return this.selectedDate.origins.filter((location) => location.name !== UNKNOWN_CATEGORY_LOCATION_NAME);
+      return this.selectedDate.origins.filter((location: any) => location.name !== UNKNOWN_CATEGORY_LOCATION_NAME);
     },
     uncategorizedLocation() {
-      return this.selectedDate.origins.find((location) => location.name === UNKNOWN_CATEGORY_LOCATION_NAME);
+      return this.selectedDate.origins.find((location: any) => location.name === UNKNOWN_CATEGORY_LOCATION_NAME);
     },
     uncategorizedVisitors() {
       return this.uncategorizedLocation.daily_total + this.uncategorizedLocation.delta;
     },
     categorizedVistors() {
-      return this.categorizedLocations.reduce((total, location) => total + location.daily_total + location.delta, 0);
+      return this.categorizedLocations.reduce(
+        (total: number, location: any) => total + location.daily_total + location.delta,
+        0
+      );
     },
   },
   methods: {
     ...mapActions(useCentreStore, ["save", "loadDailyStats", "selectFirstToManage"]),
     selectTodaysDate() {
-      this.selectedDate = this.selectedSite.days[0];
+      if (this.selectedSite && this.selectedSite.days) this.selectedDate = this.selectedSite.days[0];
     },
-    categorizedVistorsExceptThoseIn(excludedLocation) {
+    categorizedVistorsExceptThoseIn(excludedLocation: any) {
       return this.categorizedVistors - excludedLocation.daily_total - excludedLocation.delta;
     },
-    parseAndNaturalizeNumber(value) {
+    parseAndNaturalizeNumber(value: any) {
       return Math.max(0, parseInt(value) || 0);
     },
     saveAndExit() {
@@ -165,7 +168,7 @@ export default {
       this.uncategorizedLocation.delta =
         this.totalVistorsForDay - this.categorizedVistors - this.uncategorizedLocation.daily_total;
     },
-    updateLocationCategoryTotal(location, value) {
+    updateLocationCategoryTotal(location: any, value: any) {
       const normalizedValue = this.parseAndNaturalizeNumber(value);
 
       const maxAvailableVisitors = this.totalVistorsForDay - this.categorizedVistorsExceptThoseIn(location);
@@ -174,10 +177,10 @@ export default {
       location.delta = maxLimitedValule - location.daily_total;
       this.updateUncategorizedVisitors();
     },
-    updateTotalVistors(value) {
+    updateTotalVistors(value: any) {
       const normalizedValue = this.parseAndNaturalizeNumber(value);
       if (normalizedValue < this.totalVistorsForDay) {
-        this.categorizedLocations.forEach((location) => {
+        this.categorizedLocations.forEach((location: any) => {
           location.delta = -location.daily_total;
         });
       }
