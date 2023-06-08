@@ -34,9 +34,11 @@
     </template>
 
     <div v-if="selectedSite">
-      <v-row class="mt-5">
+      <v-row class="mt-1">
         <v-col></v-col>
         <v-col md="3" class="px-0">
+          <v-label class="mb-2 ml-4">Start by entering total visitors</v-label>
+          
           <v-text-field
             :modelValue="totalVistorsForDay"
             @update:modelValue="updateTotalVistors"
