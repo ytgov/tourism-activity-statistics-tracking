@@ -14,6 +14,7 @@ export class VisitorCentreService {
   get(id: number): Promise<VisitorCentre | undefined> {
     return sqldb("visitor_centre").where({ id }).first();
   }
+
   async getWithStats(id: number, days: number): Promise<any> {
     let siteOrigins = await sqldb("visitor_centre_origins").where({ visitor_centre_id: id, origin_is_active: true });
     let returnValue = { id, name: siteOrigins[0].visitor_centre_name, days: new Array<any>() };

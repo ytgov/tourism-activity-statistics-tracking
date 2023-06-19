@@ -52,7 +52,7 @@
         </v-row>
       </v-card-text>
       <v-card-actions class="mx-4 mb-2">
-        <v-btn color="primary" variant="flat" @click="saveCentre()">Save</v-btn>
+        <v-btn color="primary" variant="flat" @click="saveCentre()" :disabled="!isValid">Save</v-btn>
         <v-spacer></v-spacer>
         <v-btn color="yg_sun" variant="outlined" @click="close">Close</v-btn>
       </v-card-actions>
@@ -103,6 +103,11 @@ export default {
     },
     title() {
       return this.selectedCentre && this.selectedCentre.id ? "Edit Visitor Centre" : "New Visitor Centre";
+    },
+    isValid() {
+      return (
+        this.selectedCentre && this.selectedCentre.name && this.selectedCentre.community && this.selectedCentre.region
+      );
     },
   },
   methods: {
