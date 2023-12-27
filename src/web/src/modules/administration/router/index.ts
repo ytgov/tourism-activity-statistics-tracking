@@ -20,6 +20,11 @@ const routes = [
         component: () => import("../views/CentreList.vue"),
         beforeEnter: authGuard,
       },
+      {
+        path: "/administration/kiosks",
+        component: () => import("../views/KioskData.vue"),
+        beforeEnter: authGuard,
+      },
     ],
   },
 ];

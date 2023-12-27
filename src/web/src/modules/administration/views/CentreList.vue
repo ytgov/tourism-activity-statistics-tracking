@@ -88,7 +88,7 @@ export default {
       await this.getAllCentres();
     },
     rowClick(event: Event, thing: any) {
-      this.selectCentre(thing.item.raw);
+      this.selectCentre(thing.item);
     },
     newCentreClick() {
       this.selectCentre({ is_active: true });

@@ -7,3 +7,4 @@ export const HEALTHCHECK_URL = `${config.apiBaseUrl}/api/healthcheck`;
 // App specific URLS
 export const VISITORCENTRE_URL = `${config.apiBaseUrl}/api/visitor-centre`;
 export const PERMISSION_URL = `${config.apiBaseUrl}/api/permission`;
+export const KIOSKDATA_URL = `${config.apiBaseUrl}/api/kiosk`;
