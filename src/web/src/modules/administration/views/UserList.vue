@@ -31,8 +31,8 @@
 
     <v-data-table :search="search" :headers="headers" :items="items" :loading="isLoading" @click:row="rowClick">
       <template v-slot:item.permissions="{ item }">
-        <v-chip color="yg_moss" v-if="item.raw.is_admin">Admin</v-chip>
-        <div v-else>{{ item.raw.scopes.length }}</div>
+        <v-chip color="yg_moss" v-if="item.is_admin">Admin</v-chip>
+        <div v-else>{{ item.scopes.length }}</div>
       </template>
     </v-data-table>
   </base-card>
@@ -87,7 +87,7 @@ export default {
       await this.getAllUsers();
     },
     rowClick(event: Event, thing: any) {
-      let editUser = cloneDeep(thing.item.raw);
+      let editUser = cloneDeep(thing.item);
 
       let inputScopes = editUser.scopes
         .map((s: string | UserScope) => (typeof s == "string" ? s : s.name))

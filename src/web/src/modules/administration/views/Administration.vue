@@ -23,13 +23,19 @@
       </v-card>
     </v-col>
     <v-col>
-      <v-card to="/administration/visitor-centres">
+      <v-card class="mb-5" to="/administration/visitor-centres">
         <v-card-title>Visitor Centres</v-card-title>
         <v-card-text>
-
           <div style="font-size: 30px">
             {{ centres.length }}
           </div>
+        </v-card-text>
+      </v-card>
+
+      <v-card to="/administration/kiosks">
+        <v-card-title>Kiosk Playback Data</v-card-title>
+        <v-card-text>
+          <div style="font-size: 30px"></div>
         </v-card-text>
       </v-card>
     </v-col>
