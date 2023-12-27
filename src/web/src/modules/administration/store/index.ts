@@ -11,7 +11,7 @@ let m = useNotificationStore();
 interface AdminState {
   users: Array<AppUser>;
   selectedUser: AppUser | undefined;
-  isLoading: Boolean;
+  isLoading: boolean;
   centres: VisitorCentre[];
   selectedCentre: VisitorCentre | undefined;
   kiosks: any[];
@@ -182,7 +182,6 @@ export const useAdminStore = defineStore("admin", {
           this.getAllKiosks();
         })
         .finally(() => {
-
           if (this.selectedKiosk.items.length == 0) this.unselectKiosk();
           this.isLoading = false;
         });
