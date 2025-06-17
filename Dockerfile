@@ -33,4 +33,6 @@ WORKDIR /home/node/app
 EXPOSE 3000
 USER node
 
+COPY --chown=node:node src/api/src/templates/email/* /home/node/app/dist/templates/email/
+
 CMD ["node", "./dist/index.js"]
