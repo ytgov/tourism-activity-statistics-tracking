@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import { param, body } from "express-validator";
 import { checkJwt, loadUser } from "../middleware/authz.middleware";
 import { ReturnValidationErrors } from "../middleware";
+import { requireAdmin } from "../middleware/permissions";
 import { VisitorCentreService } from "../services";
 import { sign } from "jsonwebtoken";
 import { METABASE_KEY, METABASE_URL, METABASE_ID } from "../config";
@@ -72,6 +73,7 @@ visitorCentreRouter.put(
   "/:id",
   [param("id").notEmpty()],
   ReturnValidationErrors,
+  requireAdmin,
   async (req: Request, res: Response) => {
     const { id } = req.params;
     await db.update(parseInt(id), req.body);
@@ -80,12 +82,12 @@ visitorCentreRouter.put(
   }
 );
 
-visitorCentreRouter.post("/", async (req: Request, res: Response) => {
+visitorCentreRouter.post("/", requireAdmin, async (req: Request, res: Response) => {
   await db.create(req.body);
 
   res.json({ data: req.body });
 });
 
-visitorCentreRouter.delete("/:id", async (req: Request, res: Response) => {
+visitorCentreRouter.delete("/:id", requireAdmin, async (req: Request, res: Response) => {
   res.json({});
 });
