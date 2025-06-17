@@ -1,12 +1,7 @@
 import { defineStore } from "pinia";
-import { useNotificationStore } from "@/store/NotificationStore";
 import { useApiStore } from "@/store/ApiStore";
 import { PERMISSION_URL, PROFILE_URL } from "@/urls";
-import { useCentreStore } from "@/modules/centre/store";
 import { UserScope } from "./models";
-
-let m = useNotificationStore();
-let c = useCentreStore();
 
 export const useUserStore = defineStore("user", {
   state: () => ({
